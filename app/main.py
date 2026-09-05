@@ -87,9 +87,12 @@ def _fatal(msg: str) -> None:
 # Pipeline
 # ---------------------------------------------------------------------------
 
+from app.config import DEFAULT_SIMILARITY_THRESHOLD
+
+
 def run_pipeline(
     image_path: str,
-    threshold: float = 0.70,
+    threshold: float = DEFAULT_SIMILARITY_THRESHOLD,
     platform: str | None = None,
     target: str | None = None,
     engine: str = "all",
@@ -232,7 +235,7 @@ def run_pipeline(
             _ok(f"Extracted OCR credential clues: {', '.join(clue_tokens)}")
 
         from app.geo import analyze_image_geolocation
-        geo_res = analyze_image_geolocation(image_path_obj, cached_ocr_clues=ocr_clues)
+        geo_res = analyze_image_geolocation(image_path_obj, cached_ocr_clues=ocr_clues, context=context)
         record["geolocation"] = {
             "detected": geo_res.detected,
             "location": geo_res.location_name,
@@ -274,11 +277,12 @@ def run_pipeline(
                                 extracted_by_handle[h] = len(res.candidates)
             return ev_handles, results, extracted_by_handle
 
-        early_event_future = bg_executor.submit(
-            _gather_early_event_candidates,
-            str(image_path_obj),
-            ocr_clues
-        )
+        if clue_tokens or context:
+            early_event_future = bg_executor.submit(
+                _gather_early_event_candidates,
+                str(image_path_obj),
+                ocr_clues
+            )
 
     # ==================================================================
     # [2/7] WEB SEARCH / TARGET MEDIA DISCOVERY
@@ -287,8 +291,22 @@ def run_pipeline(
         _step(2, total_steps, "TARGET MEDIA DISCOVERY")
         from app.search import TargetURLProvider
 
-        search_provider = TargetURLProvider(target_url=target)
-        _info(f"Target: {C_CYAN}{target}{C_RESET}")
+        # Normalize target URL if missing protocol or if passed as a platform/username
+        norm_target = target.strip()
+        if not norm_target.startswith(("http://", "https://")):
+            if norm_target.startswith("instagram.com/") or norm_target.startswith("www.instagram.com/"):
+                norm_target = f"https://{norm_target}"
+            elif norm_target.lower() in ("instagram", "insta", "ig") and handle:
+                norm_target = f"https://www.instagram.com/{handle.lstrip('@')}/"
+            elif norm_target.startswith("x.com/") or norm_target.startswith("twitter.com/"):
+                norm_target = f"https://{norm_target}"
+            elif norm_target.lower() in ("twitter", "x") and handle:
+                norm_target = f"https://x.com/{handle.lstrip('@')}"
+            else:
+                norm_target = f"https://www.instagram.com/{norm_target.lstrip('@')}/"
+
+        search_provider = TargetURLProvider(target_url=norm_target)
+        _info(f"Target: {C_CYAN}{norm_target}{C_RESET}")
         _info("Extracting candidate media images...")
 
         try:
@@ -354,8 +372,8 @@ def run_pipeline(
         def _search_instagram() -> list[Candidate]:
             try:
                 api_key = require_search_config(optional=True)
-                ig = InstagramProfileProvider(api_key=api_key, allow_free=True)
-                res = ig.search_handles([clean_handle])
+                ig_prov = InstagramProfileProvider(api_key=api_key, allow_free=True, use_browser=True)
+                res = ig_prov.search_handles([clean_handle])
                 return res.candidates if res else []
             except Exception:
                 return []
@@ -573,7 +591,7 @@ def run_pipeline(
 
                 def _fetch_ig():
                     try:
-                        ig_prov = InstagramProfileProvider(api_key=api_key, allow_free=True)
+                        ig_prov = InstagramProfileProvider(api_key=api_key, allow_free=True, use_browser=True)
                         from app.search import extract_associate_network_leads
                         _, contexts = extract_associate_network_leads()
                         return ig_prov.search_handles(all_pivot_handles, contexts=contexts)
@@ -683,12 +701,14 @@ def run_pipeline(
             pass
 
     # If subject identity memory is active, check memory leads too
+    matched_kg_person = None
     if not no_memory:
         try:
             from app.memory.graph import IdentityKnowledgeGraph
             kg = IdentityKnowledgeGraph()
             kg_person, kg_sim = kg.find_nearest_person(query_embedding, threshold=0.65)
             if kg_person:
+                matched_kg_person = kg_person
                 _ok(f"Correlated with Web3-verified subject: {kg_person.name} ({kg_sim*100:.1f}%)")
                 kg_cands = kg.get_appearance_candidates(kg_person)
                 if kg_cands:
@@ -722,8 +742,14 @@ def run_pipeline(
 
     # If no matches above threshold and we used open web search, try fallback to cropped face
     if not matches and not target and not handle:
-        cropped = fp.get_face_crop(image_path_obj, margin=0.35)
+        cropped = fp.get_face_crop(image_path_obj, margin=0.60)
         if cropped is not None:
+            # If the cropped face is small (< 512px), upscale it using Lanczos interpolation
+            # so reverse search engines recognize human portrait facial features rather than small gadgets
+            ch, cw = cropped.shape[:2]
+            if ch < 512 or cw < 512:
+                cropped = cv2.resize(cropped, (640, 640), interpolation=cv2.INTER_LANCZOS4)
+
             _info("No candidates above threshold with original image.")
             _info("Retrying web search with focused portrait face crop...")
             print()
@@ -843,7 +869,7 @@ def run_pipeline(
 
                 def _fetch_ig():
                     try:
-                        ig_prov = InstagramProfileProvider(api_key=api_key, allow_free=True)
+                        ig_prov = InstagramProfileProvider(api_key=api_key, allow_free=True, use_browser=True)
                         contexts = []
                         if not no_memory:
                             from app.search import extract_associate_network_leads
@@ -1099,6 +1125,46 @@ def run_pipeline(
         record["match"]["author"] = content.author
     _mark("content")
 
+    # GEOINT Corroboration: Resolve location from confirmed identity & digital footprint if undetermined
+    geo_current = record.get("geolocation", {})
+    if not geo_current.get("detected"):
+        try:
+            from app.geo import corroborate_geolocation_from_metadata
+            events_to_check = []
+            if "matched_kg_person" in locals() and matched_kg_person:
+                events_to_check.extend(matched_kg_person.events)
+            author_val = getattr(content, "author", "") or (record.get("match", {}).get("author", ""))
+            corroborated_geo = corroborate_geolocation_from_metadata(
+                source_url=content.source_url or best.candidate.source_url,
+                title=content.title or best.candidate.title,
+                text=content.text,
+                author=author_val or (matched_kg_person.name if ("matched_kg_person" in locals() and matched_kg_person) else ""),
+                domain=best.candidate.domain,
+                events=events_to_check,
+            )
+            if corroborated_geo:
+                record["geolocation"] = {
+                    "detected": corroborated_geo.detected,
+                    "location": corroborated_geo.location_name,
+                    "country": corroborated_geo.country,
+                    "region": corroborated_geo.region,
+                    "city": corroborated_geo.city,
+                    "coordinates": corroborated_geo.coordinates,
+                    "map_url": corroborated_geo.map_url,
+                    "confidence": corroborated_geo.confidence,
+                    "reasoning": corroborated_geo.reasoning,
+                }
+                _ok(f"GEOINT Corroboration: {corroborated_geo.location_name}")
+                if corroborated_geo.coordinates:
+                    lat, lon = corroborated_geo.coordinates
+                    _info(f"Coords: {lat:.4f}° N, {lon:.4f}° E  (Map: {corroborated_geo.map_url})")
+                _info(f"Confidence: {corroborated_geo.confidence}")
+                for feat in corroborated_geo.terrain_features:
+                    _info(f"Scene Cue: {feat}")
+                print()
+        except Exception:
+            pass
+
     # ==================================================================
     # [5/7] FINGERPRINT
     # ==================================================================
@@ -1174,7 +1240,6 @@ def run_pipeline(
         try:
             from app.memory.ipfs import IPFSClient, VerifiedIdentityPayload
             from app.memory.graph import IdentityKnowledgeGraph
-            from datetime import datetime, timezone
             ipfs_cli = IPFSClient()
             payload = VerifiedIdentityPayload(
                 content_hash=content_hash,
@@ -1317,8 +1382,8 @@ def main() -> None:
     parser.add_argument(
         "--threshold",
         type=float,
-        default=0.70,
-        help="Minimum face similarity threshold (default: 0.70).",
+        default=DEFAULT_SIMILARITY_THRESHOLD,
+        help=f"Minimum face similarity threshold (default: {DEFAULT_SIMILARITY_THRESHOLD:.2f}).",
     )
     parser.add_argument(
         "--platform",
