@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🔍 FaceTrace (SocialDetective)
+# FaceTrace (SocialDetective)
 
 ### Autonomous Biometric OSINT Facial Recognition, Decentralized Web3 Knowledge Graph & Immutable Blockchain Notarization
 
@@ -32,13 +32,13 @@
 
 ---
 
-## 📑 Table of Contents
+## Table of Contents
 
-- [💡 Overview & Key Highlights](#-overview--key-highlights)
-- [🔄 7-Phase Forensic Pipeline](#-7-phase-forensic-pipeline)
-- [🌐 Decentralized Web3 Collective Memory](#-decentralized-web3-collective-memory)
-- [🏗 System Architecture](#-system-architecture)
-- [⚡ Technical Capabilities & Engineering Deep Dive](#-technical-capabilities--engineering-deep-dive)
+- [Overview & Key Highlights](#overview--key-highlights)
+- [7-Phase Forensic Pipeline](#7-phase-forensic-pipeline)
+- [Decentralized Web3 Collective Memory](#decentralized-web3-collective-memory)
+- [System Architecture](#system-architecture)
+- [Technical Capabilities & Engineering Deep Dive](#technical-capabilities--engineering-deep-dive)
   - [1. Biometric Precision & 512-d ArcFace Alignment](#1-biometric-precision--512-d-arcface-alignment)
   - [2. Multi-Engine Visual Search & Zero-CAPTCHA Architecture](#2-multi-engine-visual-search--zero-captcha-architecture)
   - [3. Dynamic OSINT Discovery & Contextual Dorking](#3-dynamic-osint-discovery--contextual-dorking---context)
@@ -47,24 +47,24 @@
   - [6. Cross-Platform Username Sweeps (WhatsMyName)](#6-cross-platform-username-sweeps-whatsmyname)
   - [7. LinkedIn Public Post Harvesting](#7-linkedin-public-post-harvesting)
   - [8. Multimodal Scene Analysis & GEOINT](#8-multimodal-scene-analysis--geoint)
-- [⛓️ Blockchain Architecture: Ethereum Sepolia](#️-blockchain-architecture-ethereum-sepolia)
-- [🚀 Quickstart & Setup Guide](#-quickstart--setup-guide)
+- [Blockchain Architecture: Ethereum Sepolia](#blockchain-architecture-ethereum-sepolia)
+- [Quickstart & Setup Guide](#quickstart--setup-guide)
   - [Prerequisites](#1-prerequisites)
   - [Installation & Virtual Environment](#2-installation--virtual-environment)
   - [GPU Acceleration (NVIDIA CUDA)](#3-gpu-acceleration-nvidia-cuda-optional)
   - [Environment Configuration](#4-environment-configuration)
   - [Execution Workflows (A through G)](#5-execution-workflows)
-- [🛡️ Independent Verification & Tamper Detection](#️-independent-verification--tamper-detection)
-- [⚠️ Known Limitations & Engineering Boundaries](#️-known-limitations--engineering-boundaries)
-- [🎬 Demonstration & Audit Walkthrough](#-demonstration--audit-walkthrough)
-- [📁 Repository Structure](#-repository-structure)
-- [🧪 Testing & Performance Validation](#-testing--performance-validation)
-- [⚖️ Privacy, Ethics & Responsible Disclosure](#️-privacy-ethics--responsible-disclosure)
-- [📄 License](#-license)
+- [Independent Verification & Tamper Detection](#independent-verification--tamper-detection)
+- [Known Limitations & Engineering Boundaries](#known-limitations--engineering-boundaries)
+- [Demonstration & Audit Walkthrough](#demonstration--audit-walkthrough)
+- [Repository Structure](#repository-structure)
+- [Testing & Performance Validation](#testing--performance-validation)
+- [Privacy, Ethics & Responsible Disclosure](#privacy-ethics--responsible-disclosure)
+- [License](#license)
 
 ---
 
-## 💡 Overview & Key Highlights
+## Overview & Key Highlights
 
 Commercial facial search engines hoard indexed identity associations behind expensive subscription paywalls and proprietary servers. When an investigator uncovers evidence, traditional platforms offer no mathematical guarantee that scraped posts, timestamps, or media haven't been retroactively manipulated.
 
@@ -90,7 +90,7 @@ Commercial facial search engines hoard indexed identity associations behind expe
 
 ---
 
-## 🔄 7-Phase Forensic Pipeline
+## 7-Phase Forensic Pipeline
 
 ```
   [1] BIOMETRIC INTAKE        Query portrait input ➔ 5-point landmark alignment ➔ 512-d ArcFace vector
@@ -141,7 +141,7 @@ Commercial facial search engines hoard indexed identity associations behind expe
 
 ---
 
-## 🌐 Decentralized Web3 Collective Memory
+## Decentralized Web3 Collective Memory
 
 Traditional facial recognition platforms maintain centralized, proprietary databases. FaceTrace uses a decentralized peer-to-peer memory model where verified findings are shared openly without vendor lock-in.
 
@@ -206,7 +206,7 @@ Traditional facial recognition platforms maintain centralized, proprietary datab
 
 ---
 
-## 🏗 System Architecture
+## System Architecture
 
 The following Mermaid diagram illustrates the full modular architecture and data flows across all pipeline stages:
 
@@ -321,7 +321,7 @@ flowchart TD
 
 ---
 
-## ⚡ Technical Capabilities & Engineering Deep Dive
+## Technical Capabilities & Engineering Deep Dive
 
 ### 1. Biometric Precision & 512-d ArcFace Alignment
 
@@ -442,7 +442,7 @@ Implemented in `app/geo.py`, this module analyzes query images for environmental
 
 ---
 
-## ⛓️ Blockchain Architecture: Ethereum Sepolia
+## Blockchain Architecture: Ethereum Sepolia
 
 ### Network Selected: **Ethereum Sepolia Testnet** (Chain ID: `11155111`)
 
@@ -545,7 +545,7 @@ contract ContentRegistry {
 
 ---
 
-## 🚀 Quickstart & Setup Guide
+## Quickstart & Setup Guide
 
 ### 1. Prerequisites
 
@@ -715,7 +715,7 @@ python -m app.memory.migrate
 
 ---
 
-## 🛡️ Independent Verification & Tamper Detection
+## Independent Verification & Tamper Detection
 
 ### 1. Re-Verifying a Recorded Dossier Against Ethereum Sepolia
 
@@ -796,7 +796,7 @@ python -m app.main verify --record ./data/results/20260904_064037_record.json
 
 ---
 
-## ⚠️ Known Limitations & Engineering Boundaries
+## Known Limitations & Engineering Boundaries
 
 In the interest of forensic transparency, the following technical constraints are documented:
 
@@ -821,7 +821,7 @@ In the interest of forensic transparency, the following technical constraints ar
 
 ---
 
-## 🎬 Demonstration & Audit Walkthrough
+## Demonstration & Audit Walkthrough
 
 Follow these steps to conduct an end-to-end demonstration or forensic audit:
 
@@ -855,7 +855,7 @@ Follow these steps to conduct an end-to-end demonstration or forensic audit:
 
 ---
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```
 social-detective/
@@ -912,7 +912,7 @@ social-detective/
 
 ---
 
-## 🧪 Testing & Performance Validation
+## Testing & Performance Validation
 
 FaceTrace includes a comprehensive unit test suite covering all modules without requiring active API keys or live blockchain transactions:
 
@@ -974,7 +974,7 @@ EOF
 
 ---
 
-## ⚖️ Privacy, Ethics & Responsible Disclosure
+## Privacy, Ethics & Responsible Disclosure
 
 > [!IMPORTANT]
 > **Facial similarity is a statistical metric, not definitive legal identity.**
@@ -1000,6 +1000,6 @@ EOF
 
 ---
 
-## 📄 License
+## License
 
 Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for complete terms.

@@ -200,8 +200,9 @@ def run_pipeline(
     except Exception as e:
         _fatal(f"Face processing error: {e}")
 
+    device_label = "GPU: CUDA" if getattr(fp, "using_gpu", False) else "CPU"
     _ok("Face detected")
-    _ok(f"Face embedding generated ({query_embedding.shape[0]}-d)")
+    _ok(f"Face embedding generated ({query_embedding.shape[0]}-d, {device_label})")
     _mark("face_detect")
     print()
 
