@@ -15,6 +15,8 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
 from app.face import FaceProcessor
+from app.context import ContextManager
+from app.search import Candidate
 
 st.set_page_config(page_title="FaceTrace Dashboard", layout="wide")
 
@@ -75,6 +77,12 @@ with right_col:
             with left_col:
                 st.divider()
                 st.subheader("🎯 Target Selection")
+                
+                # State management for multi-phase workflow
+                if "phase_1_result" not in st.session_state:
+                    st.session_state.phase_1_result = None
+                if "context_tags" not in st.session_state:
+                    st.session_state.context_tags = []
                 
                 target_idx = None
                 if len(face_data) == 1:
@@ -190,13 +198,84 @@ with right_col:
                     
                     if process.returncode == 0:
                         status.update(label="FaceTrace Complete!", state="complete", expanded=False)
+                        st.session_state.phase_1_result = "success"
                     else:
                         status.update(label="Pipeline Failed", state="error", expanded=True)
+                        st.session_state.phase_1_result = "failed"
                 
                 with tab_visuals:
-                    if process.returncode == 0:
+                    if st.session_state.phase_1_result == "success":
                         st.success("Target successfully traced! Check 'Under the Hood' tab for log details.")
                     else:
                         st.error(f"Pipeline exited with error code {process.returncode}. See 'Under the Hood' tab.")
+                        
+            # Phase 2: Crowd Pivot UI
+            if st.session_state.phase_1_result == "failed" and len(face_data) > 1:
+                with left_col:
+                    st.divider()
+                    st.warning("⚠️ Target not found directly. Initiating Phase 2: Crowd Pivot!")
+                    st.subheader("👥 Crowd Pivot Configuration")
+                    
+                    pivot_mode = st.radio(
+                        "Select Background Faces to Scan:", 
+                        ["Auto-Select Top 3", "Manual Select", "Search ALL Faces (High Rate Limit Risk)"]
+                    )
+                    
+                    pivot_idxs = []
+                    if pivot_mode == "Auto-Select Top 3":
+                        other_faces = [(i, f) for i, f in enumerate(face_data) if i != target_idx - 1]
+                        other_faces.sort(key=lambda x: (x[1]['bbox'][2]-x[1]['bbox'][0])*(x[1]['bbox'][3]-x[1]['bbox'][1]), reverse=True)
+                        pivot_idxs = [i for i, f in other_faces[:3]]
+                        st.info(f"Auto-selected {len(pivot_idxs)} largest background faces.")
+                    elif pivot_mode == "Manual Select":
+                        options = [f"Face #{i+1}" for i in range(len(face_data)) if i != target_idx - 1]
+                        selected = st.multiselect("Select faces to pivot on:", options)
+                        pivot_idxs = [int(s.split('#')[1])-1 for s in selected]
+                    else:
+                        st.error("WARNING: Searching all faces may trigger API rate bans.")
+                        pivot_idxs = [i for i in range(len(face_data)) if i != target_idx - 1]
+
+                    if st.button("🔍 Extract Crowd Context"):
+                        with st.spinner("Extracting metadata from crowd profiles..."):
+                            # Mocking candidate extraction for UI demonstration
+                            # In full prod, we would run OSINT pipelines for each pivot_idx
+                            dummy_candidates = [
+                                Candidate(image_url="", source_url="", title="Attended #HackHazards 2026 at Stanford University", domain="stanford.edu"),
+                                Candidate(image_url="", source_url="", title="Software Engineer @Google - @JohnDoe", domain="linkedin.com"),
+                                Candidate(image_url="", source_url="", title="Team photo from the #AI retreat", domain="instagram.com")
+                            ]
+                            
+                            cm = ContextManager()
+                            st.session_state.context_tags = cm.process_and_suggest(dummy_candidates)
+                            st.session_state.show_keyword_ui = True
+                            
+                # Keyword Selection Form
+                if st.session_state.get('show_keyword_ui', False):
+                    with tab_visuals:
+                        st.subheader("🏷️ Context Keywords Extracted")
+                        st.write("We extracted the following context tags from the background people. Select the most relevant tags to inject into the primary search:")
+                        
+                        with st.form("keyword_form"):
+                            selected_tags = []
+                            for tag in st.session_state.context_tags:
+                                if st.checkbox(tag, value=True):
+                                    selected_tags.append(tag)
+                            
+                            col1, col2 = st.columns(2)
+                            with col1:
+                                manual_submit = st.form_submit_button("🚀 Run Targeted Search")
+                            with col2:
+                                auto_submit = st.form_submit_button("🤖 Auto-Select Top 5 & Run")
+                                
+                            if manual_submit or auto_submit:
+                                final_tags = selected_tags
+                                if auto_submit:
+                                    final_tags = st.session_state.context_tags[:5]
+                                
+                                context_str = ",".join(final_tags)
+                                st.success(f"Running Phase 2 Search with context: `{context_str}`")
+                                # Here we would trigger subprocess.Popen with --context
+                                # e.g. cmd.extend(["--context", context_str])
+                                
     else:
         st.info("Upload an image to begin.")
