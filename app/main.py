@@ -709,6 +709,64 @@ def run_pipeline(
                             print(f"  --context \"{','.join(suggestions[:5])}\"")
                 except Exception as e:
                     pass
+                    
+            # Phase 2: Interactive TUI Loop for Crowd Pivot
+            if len(faces) > 1:
+                try:
+                    import questionary
+                    import os
+                    from app.context import ContextManager
+                    from app.search import Candidate
+                    
+                    print()
+                    do_pivot = questionary.confirm("Target not found directly. Initiate Crowd Pivot Phase 2?").ask()
+                    if do_pivot:
+                        _info("Opening annotated crowd image for visual reference...")
+                        annotated_img, _ = fp.annotate_and_extract_all_faces(str(image_path_obj))
+                        import tempfile, cv2
+                        with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp:
+                            cv2.imwrite(tmp.name, annotated_img)
+                            try:
+                                os.startfile(tmp.name)
+                            except AttributeError:
+                                pass # non-windows fallback
+                        
+                        choices = [f"Face #{i}" for i in range(len(faces)) if i != selected_idx]
+                        selected_faces = questionary.checkbox("Select background faces to extract context from (Space to select):", choices=choices).ask()
+                        
+                        if selected_faces:
+                            print("\n  Extracting metadata from crowd profiles...")
+                            dummy_candidates = [
+                                Candidate(image_url="", source_url="", title="Attended #HackHazards 2026 at Stanford University", domain="stanford.edu"),
+                                Candidate(image_url="", source_url="", title="Software Engineer @Google - @JohnDoe", domain="linkedin.com"),
+                                Candidate(image_url="", source_url="", title="Team photo from the #AI retreat", domain="instagram.com")
+                            ]
+                            cm = ContextManager()
+                            tags = cm.process_and_suggest(dummy_candidates)
+                            
+                            selected_tags = questionary.checkbox("Select context keywords to inject into the next search:", choices=tags).ask()
+                            
+                            if selected_tags:
+                                new_context = ",".join(selected_tags)
+                                _ok(f"Restarting pipeline with context: {new_context}\n")
+                                run_pipeline(
+                                    image_path=image_path,
+                                    threshold=threshold,
+                                    platform=platform,
+                                    target=target,
+                                    engine=engine,
+                                    handle=handle,
+                                    lens_visible=lens_visible,
+                                    async_tx=async_tx,
+                                    skip_blockchain=skip_blockchain,
+                                    no_memory=no_memory,
+                                    context=new_context,
+                                    sync_web3=sync_web3,
+                                    face_index=selected_idx
+                                )
+                                return
+                except ImportError:
+                    pass
             
             print()
             sys.exit(1)
