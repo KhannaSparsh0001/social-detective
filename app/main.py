@@ -689,6 +689,27 @@ def run_pipeline(
 
         if candidate_count == 0:
             _fail("No candidates discovered across visual reverse search or social identity memory.")
+            
+            # Phase 3: Graph Memory Feedback Loop
+            if not getattr(args, "no_memory", False):
+                try:
+                    from app.memory.graph import IdentityKnowledgeGraph
+                    graph = IdentityKnowledgeGraph()
+                    person, sim = graph.find_nearest_person(query_embedding, threshold=0.60)
+                    if person:
+                        suggestions = []
+                        if person.events:
+                            suggestions.extend([f"#{ev.replace(' ', '')}" for ev in person.events])
+                        if person.associates:
+                            suggestions.extend([f"@{assoc.replace(' ', '')}" for assoc in person.associates])
+                        
+                        if suggestions:
+                            print(f"\n  [💡 MEMORY SUGGESTION] Subject resembles verified graph identity '{person.name}' (Sim: {sim*100:.1f}%).")
+                            print(f"  Try running the search again with the --context flag using these tags:")
+                            print(f"  --context \"{','.join(suggestions[:5])}\"")
+                except Exception as e:
+                    pass
+            
             print()
             sys.exit(1)
 

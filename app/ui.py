@@ -218,7 +218,7 @@ with right_col:
                     
                     pivot_mode = st.radio(
                         "Select Background Faces to Scan:", 
-                        ["Auto-Select Top 3", "Manual Select", "Search ALL Faces (High Rate Limit Risk)"]
+                        ["Auto-Select Top 3", "Manual Select", "Search ALL Faces (High Risk of Bot Flagging)"]
                     )
                     
                     pivot_idxs = []
@@ -232,7 +232,7 @@ with right_col:
                         selected = st.multiselect("Select faces to pivot on:", options)
                         pivot_idxs = [int(s.split('#')[1])-1 for s in selected]
                     else:
-                        st.error("WARNING: Searching all faces may trigger API rate bans.")
+                        st.error("⚠️ WARNING: Searching all faces rapidly may cause your IP to be flagged for bot activity and result in API bans.")
                         pivot_idxs = [i for i in range(len(face_data)) if i != target_idx - 1]
 
                     if st.button("🔍 Extract Crowd Context"):
