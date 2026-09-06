@@ -635,6 +635,16 @@ def run_pipeline(
         if candidate_count == 0:
             _fail("No candidates discovered across visual reverse search or social identity memory.")
             
+            # Phase 1: Watchlist Ingestion
+            if not getattr(args, "no_memory", False):
+                try:
+                    from app.memory.graph import IdentityKnowledgeGraph
+                    graph = IdentityKnowledgeGraph()
+                    pending = graph.add_pending_target(query_embedding.tolist(), str(image_path_obj))
+                    print(f"\n  [👀 WATCHLIST] Added target to memory as pending (ID: {pending.id}) for future correlation.")
+                except Exception as e:
+                    pass
+
             # Phase 3: Graph Memory Feedback Loop
             if not getattr(args, "no_memory", False):
                 try:
