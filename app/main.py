@@ -17,6 +17,15 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
+
+# Extremely strict memory limits for OpenBLAS/OMP on low-RAM machines (8GB)
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+os.environ["NUMEXPR_NUM_THREADS"] = "1"
+import json
 import re
 import sys
 import time
