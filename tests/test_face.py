@@ -41,3 +41,24 @@ class TestFaceProcessor:
         img = np.zeros((200, 200, 3), dtype=np.uint8)
         result = processor.get_best_embedding_from_image(img)
         assert result is None
+
+    def test_multiple_faces_selection(self, processor):
+        test_img = Path("data/input/test_face_23.jpg")
+        if test_img.exists():
+            # Default auto-selects largest/primary face
+            emb0 = processor.get_embedding(str(test_img))
+            assert emb0 is not None
+            assert emb0.shape == (512,)
+
+            # Select specific face index
+            emb1 = processor.get_embedding(str(test_img), face_index=1)
+            assert emb1 is not None
+            assert emb1.shape == (512,)
+
+            # Ensure different faces produce different embeddings
+            sim = float(np.dot(emb0, emb1) / (np.linalg.norm(emb0) * np.linalg.norm(emb1)))
+            assert sim < 0.90
+
+            # Invalid index should raise FaceProcessingError
+            with pytest.raises(FaceProcessingError, match="Invalid face_index"):
+                processor.get_embedding(str(test_img), face_index=99)

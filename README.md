@@ -20,7 +20,7 @@
 [![X/Twitter](https://img.shields.io/badge/OSINT-X%20%2F%20Twitter-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com)
 [![LinkedIn](https://img.shields.io/badge/OSINT-LinkedIn%20Network-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com)
 
-[![Pytest Suite](https://img.shields.io/badge/Test%20Suite-114%20Passed-2ea44f?style=for-the-badge&logo=pytest&logoColor=white)](https://pytest.org)
+[![Pytest Suite](https://img.shields.io/badge/Test%20Suite-115%20Passed-2ea44f?style=for-the-badge&logo=pytest&logoColor=white)](https://pytest.org)
 [![SHA-256](https://img.shields.io/badge/Fingerprint-SHA--256-555555?style=for-the-badge)](https://en.wikipedia.org/wiki/SHA-2)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
 
@@ -53,7 +53,7 @@
   - [Installation & Virtual Environment](#2-installation--virtual-environment)
   - [GPU Acceleration (NVIDIA CUDA)](#3-gpu-acceleration-nvidia-cuda-optional)
   - [Environment Configuration](#4-environment-configuration)
-  - [Execution Workflows (A through G)](#5-execution-workflows)
+  - [Execution Workflows (A through H)](#5-execution-workflows)
 - [Independent Verification & Tamper Detection](#independent-verification--tamper-detection)
 - [Known Limitations & Engineering Boundaries](#known-limitations--engineering-boundaries)
 - [Demonstration & Audit Walkthrough](#demonstration--audit-walkthrough)
@@ -713,6 +713,18 @@ Migrates previous forensic dossiers in `data/results/` into the local knowledge 
 python -m app.memory.migrate
 ```
 
+<br/>
+
+#### Option H: Group Photos & Multi-Face Targeting (`--face-index`)
+When an input image contains multiple faces (group photos, stage pictures, selfies), FaceTrace automatically detects and indexes all faces, defaulting to the primary (largest) face, or allows targeting any person by index:
+```bash
+# Auto-detects all faces and defaults to primary/largest face #0
+python -m app.main --image ./data/input/test_face_23.jpg
+
+# Explicitly target face #1 in a group photo
+python -m app.main --image ./data/input/test_face_23.jpg --face-index 1
+```
+
 ---
 
 ## Independent Verification & Tamper Detection
@@ -920,7 +932,7 @@ FaceTrace includes a comprehensive unit test suite covering all modules without 
 pytest
 ```
 
-**Test Execution Results (114 Tests Passing):**
+**Test Execution Results (115 Tests Passing):**
 
 ```text
 ============================= test session starts ==============================
@@ -928,21 +940,21 @@ platform win32 -- Python 3.14.x, pytest-9.x.x, pluggy-1.x.x
 rootdir: C:\Projects\social-detective
 configfile: pyproject.toml
 testpaths: tests
-collected 114 items
+collected 115 items
 
 tests\test_blockchain.py ....                                            [  3%]
-tests\test_face.py ....                                                  [  7%]
-tests\test_geo.py .......                                                [ 13%]
-tests\test_harvest.py ..............                                     [ 25%]
-tests\test_hashing.py .............                                      [ 36%]
-tests\test_identity.py .................                                 [ 51%]
-tests\test_linkedin.py ................                                  [ 65%]
-tests\test_matching.py ........                                          [ 72%]
-tests\test_memory_web3.py ....                                           [ 76%]
+tests\test_face.py .....                                                 [  8%]
+tests\test_geo.py .......                                                [ 14%]
+tests\test_harvest.py ..............                                     [ 26%]
+tests\test_hashing.py .............                                      [ 37%]
+tests\test_identity.py .................                                 [ 52%]
+tests\test_linkedin.py ................                                  [ 66%]
+tests\test_matching.py ........                                          [ 73%]
+tests\test_memory_web3.py ....                                           [ 77%]
 tests\test_ocr.py ..                                                     [ 78%]
 tests\test_search.py .........................                           [100%]
 
-============================ 114 passed in ~49s ================================
+============================ 115 passed in ~49s ================================
 ```
 
 <br/>
