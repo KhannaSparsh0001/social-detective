@@ -1337,6 +1337,9 @@ def run_pipeline(
         if tx_display and not tx_display.startswith("0x") and not tx_display.startswith("("):
             tx_display = f"0x{tx_display}"
 
+        explorer_url = f"https://sepolia.etherscan.io/tx/{tx_display}" if tx_display and tx_display.startswith("0x") else None
+        contract_url = f"https://sepolia.etherscan.io/address/{bc.contract_address}"
+
         if tx.status == "confirmed":
             if tx.tx_hash == "(previously recorded)":
                 _ok("Record previously registered on-chain")
@@ -1345,13 +1348,19 @@ def run_pipeline(
             print()
             _info(f"TX:")
             _info(f"{C_CYAN}{tx_display}{C_RESET}")
-            _info(f"Block: {tx.block_number}")
+            if tx.block_number:
+                _info(f"Block: {tx.block_number}")
+            if explorer_url:
+                _info(f"Explorer: {C_CYAN}{explorer_url}{C_RESET}")
+            _info(f"Contract: {C_CYAN}{contract_url}{C_RESET}")
         elif tx.status == "submitted":
             _ok("Transaction broadcast to Ethereum Sepolia (async mode)")
             print()
             _info(f"TX:")
             _info(f"{C_CYAN}{tx_display}{C_RESET}")
-            _info(f"Explorer: https://sepolia.etherscan.io/tx/{tx_display}")
+            if explorer_url:
+                _info(f"Explorer: {C_CYAN}{explorer_url}{C_RESET}")
+            _info(f"Contract: {C_CYAN}{contract_url}{C_RESET}")
         elif tx.status == "error":
             _fail(f"Transaction failed: {tx.error}")
             # Continue to save record even if tx fails
@@ -1363,7 +1372,9 @@ def run_pipeline(
         record["blockchain"] = {
             "network": bc.network,
             "contract": bc.contract_address,
+            "contract_url": contract_url,
             "transaction": tx_display if tx.tx_hash else "",
+            "explorer_url": explorer_url or "",
             "block": tx.block_number,
             "status": tx.status,
         }
