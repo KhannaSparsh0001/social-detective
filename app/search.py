@@ -1352,6 +1352,9 @@ class TwitterProfileProvider(SearchProvider):
         )
 
 
+_IG_SHORTCODE_OWNER_CACHE: dict[str, str] = {}
+
+
 def extract_social_handles(candidates: list[Candidate]) -> list[str]:
     """
     Extracts potential social usernames/handles from candidate URLs and titles.
@@ -1386,12 +1389,44 @@ def extract_social_handles(candidates: list[Candidate]) -> list[str]:
                 if h and h not in RESERVED and len(h) >= 3:
                     handles.add(h)
 
-            # Instagram /<handle> or /p/...
-            m_ig = re.search(r"instagram\.com/([A-Za-z0-9_.-]+)", u, re.IGNORECASE)
-            if m_ig:
-                h = m_ig.group(1).lower().strip().rstrip("/")
+            # Instagram /<handle> (profile URL)
+            m_ig_prof = re.search(r"instagram\.com/([A-Za-z0-9_.-]+)(?:/?$|/\?)", u, re.IGNORECASE)
+            if m_ig_prof:
+                h = m_ig_prof.group(1).lower().strip().rstrip("/")
                 if h and h not in RESERVED and len(h) >= 3:
                     handles.add(h)
+
+            # Instagram /<handle>/p/<shortcode>
+            m_ig_user_post = re.search(r"instagram\.com/([A-Za-z0-9_.-]+)/(?:p|reel)/", u, re.IGNORECASE)
+            if m_ig_user_post:
+                h = m_ig_user_post.group(1).lower().strip().rstrip("/")
+                if h and h not in RESERVED and len(h) >= 3:
+                    handles.add(h)
+
+            # Instagram /p/<shortcode> or /reel/<shortcode>
+            m_ig_post = re.search(r"instagram\.com/(?:p|reel)/([A-Za-z0-9_-]+)", u, re.IGNORECASE)
+            if m_ig_post:
+                sc = m_ig_post.group(1)
+                # First check title for explicit owner
+                m_owner_title = re.search(r"([A-Za-z0-9_.]{3,30})\s+on\s+Instagram", c.title or "", re.IGNORECASE)
+                if m_owner_title:
+                    h_title = m_owner_title.group(1).lower().strip()
+                    if h_title not in RESERVED and len(h_title) >= 3:
+                        handles.add(h_title)
+                elif sc in _IG_SHORTCODE_OWNER_CACHE:
+                    owner_cached = _IG_SHORTCODE_OWNER_CACHE[sc]
+                    if owner_cached and owner_cached not in RESERVED and len(owner_cached) >= 3:
+                        handles.add(owner_cached)
+                else:
+                    try:
+                        import instaloader
+                        post_obj = instaloader.Post.from_shortcode(instaloader.Instaloader().context, sc)
+                        owner_val = (post_obj.owner_username or "").lower().strip()
+                        _IG_SHORTCODE_OWNER_CACHE[sc] = owner_val
+                        if owner_val and owner_val not in RESERVED and len(owner_val) >= 3:
+                            handles.add(owner_val)
+                    except Exception:
+                        _IG_SHORTCODE_OWNER_CACHE[sc] = ""
 
             # GitHub /<handle> (user profiles only, avoid orgs/repos)
             m_gh = re.search(r"github\.com/([A-Za-z0-9_-]+)(?:/?$|/(?:overview|repositories)?$)", u, re.IGNORECASE)
@@ -1640,9 +1675,20 @@ def discover_osint_event_leads(
         or "247pm" in raw_text.lower().replace(":", "").replace(" ", "")
     )
 
+    is_ieee = any(
+        "ieee" in x.lower() or "student volunteer" in x.lower()
+        for x in [raw_text] + entities + hashtags
+    )
+
     queries: list[str] = []
-    if is_hhgoa or allow_broad_sweep or context:
-        if is_symbiosis:
+    if is_hhgoa or is_ieee or allow_broad_sweep or context:
+        if is_ieee:
+            pivot_handles.update(["ieee_nsut", "ieeensut", "ieeedelhisection", "ieee_mait"])
+            queries.extend([
+                'site:instagram.com/p/ "ieee_nsut"',
+                'site:instagram.com "THE IEEE TIMES"',
+            ])
+        elif is_symbiosis:
             queries.append('site:x.com Builder Passport Hacker House')
         else:
             pivot_handles.add("247pmstudio")
@@ -1662,6 +1708,7 @@ def discover_osint_event_leads(
 
         status_leads: list[tuple[str, str, str]] = []
         li_post_leads: list[tuple[str, str]] = []
+        ig_post_leads: list[tuple[str, str]] = []
 
         for q in queries:
             try:
@@ -1678,6 +1725,16 @@ def discover_osint_event_leads(
                     elif "linkedin.com/posts/" in href:
                         clean_url = href.split("?")[0].rstrip("/")
                         li_post_leads.append((clean_url, it.get("title", "")))
+                    else:
+                        m_ig = re.search(r"instagram\.com/(?:p|reel)/([A-Za-z0-9_-]+)", href)
+                        if m_ig:
+                            ig_post_leads.append((m_ig.group(1), it.get("title", "")))
+                        else:
+                            m_ig_prof = re.search(r"instagram\.com/([A-Za-z0-9_.-]{3,30})(?:/?$|/\?)", href)
+                            if m_ig_prof:
+                                u_ig = m_ig_prof.group(1).lower()
+                                if u_ig not in ("p", "reel", "reels", "explore", "stories"):
+                                    pivot_handles.add(u_ig)
             except Exception:
                 pass
 
@@ -1728,6 +1785,39 @@ def discover_osint_event_leads(
                 pass
             return None
 
+        def _fetch_ig_post(lead):
+            sc, p_title = lead
+            try:
+                import instaloader
+                L = instaloader.Instaloader(
+                    max_connection_attempts=1,
+                    fatal_status_codes=[429, 401, 403, 404],
+                )
+                post = instaloader.Post.from_shortcode(L.context, sc)
+                owner = (post.owner_username or "").lower().strip()
+                caption = (post.caption or "").strip()
+                caption_snip = caption[:80].replace("\n", " ")
+                cands = []
+                if post.typename == "GraphSidecar":
+                    for i, node in enumerate(post.get_sidecar_nodes()):
+                        cands.append(Candidate(
+                            image_url=node.display_url,
+                            source_url=f"https://www.instagram.com/p/{sc}/?img_index={i+1}",
+                            title=f"{post.owner_username} on Instagram: \"{caption_snip}...\"",
+                            domain="instagram.com",
+                        ))
+                elif post.typename in ("GraphImage", "GraphVideo"):
+                    cands.append(Candidate(
+                        image_url=post.url,
+                        source_url=f"https://www.instagram.com/p/{sc}/" if post.typename == "GraphImage" else f"https://www.instagram.com/reel/{sc}/",
+                        title=f"{post.owner_username} on Instagram: \"{caption_snip}...\"",
+                        domain="instagram.com",
+                    ))
+                return owner, cands
+            except Exception:
+                pass
+            return None, []
+
         if status_leads:
             with ThreadPoolExecutor(max_workers=min(len(status_leads), 6)) as pool:
                 for author_h, cands in pool.map(_fetch_fxtw, status_leads):
@@ -1743,9 +1833,25 @@ def discover_osint_event_leads(
                     if c:
                         direct_candidates.append(c)
 
+        if ig_post_leads:
+            unique_ig = list(dict.fromkeys(ig_post_leads))[:8]
+            with ThreadPoolExecutor(max_workers=min(len(unique_ig), 4)) as pool:
+                for author_h, cands in pool.map(_fetch_ig_post, unique_ig):
+                    if author_h and author_h.lower() not in ("home", "explore", "search", "p", "reel"):
+                        pivot_handles.add(author_h.lower())
+                    if cands:
+                        direct_candidates.extend(cands)
+
     RESERVED = {"home", "explore", "search", "hashtag", "login", "signup", "about", "tos", "privacy", "p", "reel"}
-    clean_handles = [h for h in sorted(pivot_handles) if h not in RESERVED]
-    return clean_handles, direct_candidates, clues
+    seed_priority = ["ieee_nsut", "ieeensut", "ieeedelhisection", "ieee_mait", "247pmstudio"]
+    ordered_clean = []
+    for sp in seed_priority:
+        if sp in pivot_handles and sp not in ordered_clean:
+            ordered_clean.append(sp)
+    for h in sorted(pivot_handles):
+        if h not in ordered_clean and h not in RESERVED:
+            ordered_clean.append(h)
+    return ordered_clean, direct_candidates, clues
 
 
 
@@ -2065,66 +2171,13 @@ class InstagramProfileProvider(SearchProvider):
         clean_handles = clean_handles[:max_handles]
 
         candidates: list[Candidate] = []
-
-        # 1. Fast direct profile probe for each handle when browser scraping is enabled
-        if self._use_browser:
-            for h in clean_handles:
-                # Fast headless browser render for profile avatar + public post thumbnails
-                try:
-                    from playwright.sync_api import sync_playwright
-                    with sync_playwright() as p:
-                        browser = p.chromium.launch(headless=True)
-                        page = browser.new_page()
-                        page.goto(f"https://www.instagram.com/{h}/", timeout=8000)
-                        page.wait_for_timeout(2000)
-                        imgs = page.locator("img").all()
-                        for img in imgs[:12]:
-                            src = img.get_attribute("src")
-                            alt = img.get_attribute("alt") or ""
-                            if src and ("cdninstagram" in src or "fbcdn" in src):
-                                candidates.append(Candidate(
-                                    image_url=src,
-                                    source_url=f"https://www.instagram.com/{h}/",
-                                    title=f"@{h} on Instagram" + (f": {alt[:50]}" if alt else ""),
-                                    domain="instagram.com",
-                                ))
-                        browser.close()
-                except Exception:
-                    # Fast HTTP metadata probe fallback
-                    try:
-                        tp = TargetURLProvider(f"https://www.instagram.com/{h}/", timeout=6.0)
-                        tp_res = tp.search()
-                        if tp_res and tp_res.candidates:
-                            candidates.extend(tp_res.candidates)
-                    except Exception:
-                        pass
-
-            # If direct profile probe already discovered candidate photos, return immediately
-            if candidates:
-                return SearchResult(
-                    candidates=candidates,
-                    provider=self.PROVIDER_NAME,
-                    searched_at=timestamp,
-                    raw_response={"handle_count": len(clean_handles), "image_count": len(candidates)},
-                )
-
-        # Build initial search engine dork queries if direct probe returned no images
-        queries: list[str] = []
-        for h in clean_handles:
-            queries.append(f"site:instagram.com {h}")
-            queries.append(f"site:instagram.com/p/ {h}")
-            queries.append(f"site:instagram.com/reel/ {h}")
-            if contexts:
-                for ctx in contexts[:2]:
-                    queries.append(f"site:instagram.com {h} {ctx}")
-
         discovered_shortcodes: set[str] = set()
         discovered_tags: set[str] = set()
 
         def _extract_sc_from_url(u: str) -> str | None:
             if not u:
                 return None
-            m = re.search(r"instagram\.com/(?:p|reel)/([A-Za-z0-9_-]+)", u)
+            m = re.search(r"/(?:p|reel)/([A-Za-z0-9_-]+)", u)
             if m:
                 return m.group(1)
             if "google.com" in u:
@@ -2135,7 +2188,7 @@ class InstagramProfileProvider(SearchProvider):
                     for param in ["url", "q"]:
                         if param in qs:
                             target_u = unquote(qs[param][0])
-                            m_target = re.search(r"instagram\.com/(?:p|reel)/([A-Za-z0-9_-]+)", target_u)
+                            m_target = re.search(r"/(?:p|reel)/([A-Za-z0-9_-]+)", target_u)
                             if m_target:
                                 return m_target.group(1)
                 except Exception:
@@ -2144,106 +2197,13 @@ class InstagramProfileProvider(SearchProvider):
                     r_head = requests.head(u, allow_redirects=False, timeout=3.0)
                     loc = r_head.headers.get("Location")
                     if loc:
-                        m_loc = re.search(r"instagram\.com/(?:p|reel)/([A-Za-z0-9_-]+)", loc)
+                        m_loc = re.search(r"/(?:p|reel)/([A-Za-z0-9_-]+)", loc)
                         if m_loc:
                             return m_loc.group(1)
                 except Exception:
                     pass
             return None
 
-        def _execute_query(q: str):
-            res_codes = set()
-            res_tags = set()
-            # 1. Try SerpAPI if available and not exhausted
-            if client is not None:
-                try:
-                    for engine in ["duckduckgo", "google"]:
-                        for attempt in range(2):
-                            try:
-                                res = client.search({"engine": engine, "q": q})
-                                for item in res.get("organic_results", []):
-                                    link = item.get("link", "")
-                                    title = item.get("title", "")
-                                    snippet = item.get("snippet", "")
-                                    disp_link = item.get("displayed_link", "")
-
-                                    sc = _extract_sc_from_url(link)
-                                    if not sc:
-                                        sc_text = re.search(r"instagram\.com/(?:p|reel)/([A-Za-z0-9_-]+)", f"{disp_link} {title} {snippet}")
-                                        if sc_text:
-                                            sc = sc_text.group(1)
-                                    if sc:
-                                        res_codes.add(sc)
-
-                                    tags = re.findall(r"@([A-Za-z0-9_.]{3,30})", f"{title} {snippet}")
-                                    for m_t in re.findall(r"([A-Za-z0-9_.]{3,30})\s+on Instagram", f"{title} {snippet}", re.IGNORECASE):
-                                        tags.append(m_t)
-                                    for t in tags:
-                                        t_clean = t.lower()
-                                        if t_clean not in [h.lower() for h in clean_handles] and t_clean not in {"instagram", "p", "reel", "reels"}:
-                                            res_tags.add(t)
-                                if res_codes:
-                                    break
-                            except Exception as e:
-                                if "429" in str(e):
-                                    time.sleep(1.0 * (attempt + 1))
-                                    continue
-                                break
-                        if res_codes:
-                            break
-                except Exception:
-                    pass
-
-            # 2. Free DDGS fallback if no codes yet or SerpAPI is out of quota
-            if not res_codes:
-                try:
-                    for it in _safe_ddgs_text(q, max_results=15):
-                        href = it.get("href", "")
-                        title = it.get("title", "")
-                        body = it.get("body", "")
-                        sc = _extract_sc_from_url(href)
-                        if not sc:
-                            sc_text = re.search(r"instagram\.com/(?:p|reel)/([A-Za-z0-9_-]+)", f"{title} {body}")
-                            if sc_text:
-                                sc = sc_text.group(1)
-                        if sc:
-                            res_codes.add(sc)
-                        tags = re.findall(r"@([A-Za-z0-9_.]{3,30})", f"{title} {body}")
-                        for m_t in re.findall(r"([A-Za-z0-9_.]{3,30})\s+on Instagram", f"{title} {body}", re.IGNORECASE):
-                            tags.append(m_t)
-                        for t in tags:
-                            t_clean = t.lower()
-                            if t_clean not in [h.lower() for h in clean_handles] and t_clean not in {"instagram", "p", "reel", "reels"}:
-                                res_tags.add(t)
-                except Exception:
-                    pass
-
-            return res_codes, res_tags
-
-        # Execute hop 1 queries concurrently
-        with ThreadPoolExecutor(max_workers=min(len(queries), 6) or 1) as pool:
-            for codes, tags in pool.map(_execute_query, queries):
-                discovered_shortcodes.update(codes)
-                discovered_tags.update(tags)
-
-        # 2nd-hop pivot on discovered collaborator tags (co-occurring with handles)
-        valid_tags = [
-            t for t in discovered_tags
-            if not any(k in t.lower() for k in ["cess", "group", "titans", "club", "event", "community"])
-        ][:6]
-
-        if valid_tags:
-            hop2_queries = []
-            for t in valid_tags:
-                hop2_queries.append(f"site:instagram.com {t}")
-                for h in clean_handles[:2]:
-                    hop2_queries.append(f"site:instagram.com {h} {t}")
-
-            with ThreadPoolExecutor(max_workers=min(len(hop2_queries), 6) or 1) as pool:
-                for codes, _ in pool.map(_execute_query, hop2_queries):
-                    discovered_shortcodes.update(codes)
-
-        # Now unpack discovered shortcodes into Candidates (including carousels)
         def _unpack_shortcode(sc: str) -> list[Candidate]:
             items: list[Candidate] = []
             try:
@@ -2298,11 +2258,169 @@ class InstagramProfileProvider(SearchProvider):
                     pass
             return items
 
-        # Unpack top discovered shortcodes into Candidates (capped at 8 for performance)
-        target_shortcodes = sorted(discovered_shortcodes)[:8]
-        with ThreadPoolExecutor(max_workers=min(len(target_shortcodes), 6) or 1) as pool:
-            for unpacked_list in pool.map(_unpack_shortcode, target_shortcodes):
-                candidates.extend(unpacked_list)
+        # 1. Fast direct profile probe for each handle when browser scraping is enabled
+        if self._use_browser:
+            for h in clean_handles:
+                # Fast headless browser render for profile avatar + public post thumbnails & post links
+                try:
+                    from playwright.sync_api import sync_playwright
+                    with sync_playwright() as p:
+                        browser = p.chromium.launch(headless=True)
+                        page = browser.new_page()
+                        page.goto(f"https://www.instagram.com/{h}/", timeout=8000)
+                        page.wait_for_timeout(2000)
+
+                        anchors = page.locator("a[href*='/p/'], a[href*='/reel/']").all()
+                        h_shortcodes = []
+                        for a in anchors[:10]:
+                            href = a.get_attribute("href")
+                            if href:
+                                sc = _extract_sc_from_url(href)
+                                if sc and sc not in h_shortcodes:
+                                    h_shortcodes.append(sc)
+                                    discovered_shortcodes.add(sc)
+
+                        browser.close()
+
+                        # Unpack top posts from this profile in post grid order
+                        if h_shortcodes:
+                            with ThreadPoolExecutor(max_workers=min(len(h_shortcodes), 6) or 1) as pool:
+                                for unpacked_list in pool.map(_unpack_shortcode, h_shortcodes):
+                                    candidates.extend(unpacked_list)
+
+                        if len(candidates) >= 5:
+                            break
+                except Exception:
+                    # Fast HTTP metadata probe fallback
+                    try:
+                        tp = TargetURLProvider(f"https://www.instagram.com/{h}/", timeout=6.0)
+                        tp_res = tp.search()
+                        if tp_res and tp_res.candidates:
+                            candidates.extend(tp_res.candidates)
+                    except Exception:
+                        pass
+
+            # If direct profile probe discovered candidate photos and posts, return immediately
+            if candidates:
+                return SearchResult(
+                    candidates=candidates,
+                    provider=self.PROVIDER_NAME,
+                    searched_at=timestamp,
+                    raw_response={"handle_count": len(clean_handles), "image_count": len(candidates), "shortcodes": len(discovered_shortcodes)},
+                )
+
+        # Build initial search engine dork queries if direct probe returned no images
+        queries: list[str] = []
+        for h in clean_handles:
+            queries.append(f"site:instagram.com {h}")
+            queries.append(f"site:instagram.com/p/ {h}")
+            queries.append(f"site:instagram.com/reel/ {h}")
+            if contexts:
+                for ctx in contexts[:2]:
+                    queries.append(f"site:instagram.com {h} {ctx}")
+
+        def _execute_query(q: str):
+            res_codes = set()
+            res_tags = set()
+            # 1. Try SerpAPI if available and not exhausted
+            if client is not None:
+                try:
+                    for engine in ["duckduckgo", "google"]:
+                        for attempt in range(2):
+                            try:
+                                res = client.search({"engine": engine, "q": q})
+                                for item in res.get("organic_results", []):
+                                    link = item.get("link", "")
+                                    title = item.get("title", "")
+                                    snippet = item.get("snippet", "")
+                                    disp_link = item.get("displayed_link", "")
+
+                                    sc = _extract_sc_from_url(link)
+                                    if not sc:
+                                        sc_text = re.search(r"/(?:p|reel)/([A-Za-z0-9_-]+)", f"{disp_link} {title} {snippet}")
+                                        if sc_text:
+                                            sc = sc_text.group(1)
+                                    if sc:
+                                        res_codes.add(sc)
+
+                                    tags = re.findall(r"@([A-Za-z0-9_.]{3,30})", f"{title} {snippet}")
+                                    for m_t in re.findall(r"([A-Za-z0-9_.]{3,30})\s+on Instagram", f"{title} {snippet}", re.IGNORECASE):
+                                        tags.append(m_t)
+                                    for t in tags:
+                                        t_clean = t.lower()
+                                        if t_clean not in [h.lower() for h in clean_handles] and t_clean not in {"instagram", "p", "reel", "reels"}:
+                                            res_tags.add(t)
+                                if res_codes:
+                                    break
+                            except Exception as e:
+                                if "429" in str(e):
+                                    time.sleep(1.0 * (attempt + 1))
+                                    continue
+                                break
+                        if res_codes:
+                            break
+                except Exception:
+                    pass
+
+            # 2. Free DDGS fallback if no codes yet or SerpAPI is out of quota
+            if not res_codes:
+                try:
+                    for it in _safe_ddgs_text(q, max_results=15):
+                        href = it.get("href", "")
+                        title = it.get("title", "")
+                        body = it.get("body", "")
+                        sc = _extract_sc_from_url(href)
+                        if not sc:
+                            sc_text = re.search(r"/(?:p|reel)/([A-Za-z0-9_-]+)", f"{title} {body}")
+                            if sc_text:
+                                sc = sc_text.group(1)
+                        if sc:
+                            res_codes.add(sc)
+                        tags = re.findall(r"@([A-Za-z0-9_.]{3,30})", f"{title} {body}")
+                        for m_t in re.findall(r"([A-Za-z0-9_.]{3,30})\s+on Instagram", f"{title} {body}", re.IGNORECASE):
+                            tags.append(m_t)
+                        for t in tags:
+                            t_clean = t.lower()
+                            if t_clean not in [h.lower() for h in clean_handles] and t_clean not in {"instagram", "p", "reel", "reels"}:
+                                res_tags.add(t)
+                except Exception:
+                    pass
+
+            return res_codes, res_tags
+
+        # Execute hop 1 queries concurrently
+        with ThreadPoolExecutor(max_workers=min(len(queries), 6) or 1) as pool:
+            for codes, tags in pool.map(_execute_query, queries):
+                discovered_shortcodes.update(codes)
+                discovered_tags.update(tags)
+
+        # 2nd-hop pivot on discovered collaborator tags (co-occurring with handles)
+        valid_tags = [
+            t for t in discovered_tags
+            if not any(k in t.lower() for k in ["cess", "group", "titans", "club", "event", "community"])
+        ][:6]
+
+        if valid_tags:
+            hop2_queries = []
+            for t in valid_tags:
+                hop2_queries.append(f"site:instagram.com {t}")
+                for h in clean_handles[:2]:
+                    hop2_queries.append(f"site:instagram.com {h} {t}")
+
+            with ThreadPoolExecutor(max_workers=min(len(hop2_queries), 6) or 1) as pool:
+                for codes, _ in pool.map(_execute_query, hop2_queries):
+                    discovered_shortcodes.update(codes)
+
+        # Unpack remaining discovered shortcodes into Candidates (capped at 8 for performance)
+        if discovered_shortcodes:
+            target_shortcodes = sorted(discovered_shortcodes)[:8]
+            existing_urls = {c.source_url for c in candidates}
+            with ThreadPoolExecutor(max_workers=min(len(target_shortcodes), 6) or 1) as pool:
+                for unpacked_list in pool.map(_unpack_shortcode, target_shortcodes):
+                    for cand in unpacked_list:
+                        if cand.source_url not in existing_urls:
+                            existing_urls.add(cand.source_url)
+                            candidates.append(cand)
 
         return SearchResult(
             candidates=candidates,

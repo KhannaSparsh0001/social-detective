@@ -112,6 +112,7 @@ def run_pipeline(
     no_memory: bool = False,
     context: str | None = None,
     sync_web3: bool = False,
+    face_index: int | None = None,
 ) -> None:
     """Execute the full FaceTrace pipeline."""
 
@@ -201,7 +202,7 @@ def run_pipeline(
         _fatal(f"Failed to initialize face processor: {e}")
 
     try:
-        query_embedding = fp.get_embedding(str(image_path_obj))
+        faces = fp.detect_faces(str(image_path_obj))
     except FaceProcessingError as e:
         _fail(str(e))
         print()
@@ -209,14 +210,50 @@ def run_pipeline(
     except Exception as e:
         _fatal(f"Face processing error: {e}")
 
-    _ok("Face detected")
-    _ok(f"Face embedding generated ({query_embedding.shape[0]}-d)")
+    if not faces:
+        _fail("No face detected in the image. Please provide a clear photo containing a face.")
+        print()
+        sys.exit(1)
+
+    # Sort faces by bounding box area descending (largest/primary face first)
+    faces.sort(
+        key=lambda f: float((f.bbox[2] - f.bbox[0]) * (f.bbox[3] - f.bbox[1])),
+        reverse=True,
+    )
+
+    selected_idx = 0 if face_index is None else face_index
+    if selected_idx < 0 or selected_idx >= len(faces):
+        _fatal(
+            f"Requested face index {selected_idx}, but image only has {len(faces)} detected face(s) "
+            f"(valid indices: 0 to {len(faces)-1})."
+        )
+
+    target_face = faces[selected_idx]
+    query_embedding = target_face.embedding
+    if query_embedding is None:
+        _fatal("Face detected but embedding extraction failed.")
+
+    device_label = "GPU: CUDA" if getattr(fp, "using_gpu", False) else "CPU"
+    _ok(f"Face detected ({len(faces)} found in image)")
+    if len(faces) > 1:
+        _info(f"Multiple faces detected:")
+        for idx, f in enumerate(faces):
+            w = int(f.bbox[2] - f.bbox[0])
+            h = int(f.bbox[3] - f.bbox[1])
+            is_sel = idx == selected_idx
+            sel_tag = f" {C_GREEN}<- TARGETED{' (primary)' if idx == 0 else ''}{C_RESET}" if is_sel else ""
+            _info(f"        • Face #{idx}: {w}x{h}px at ({int(f.bbox[0])}, {int(f.bbox[1])}){sel_tag}")
+        if face_index is None:
+            _info(f"        Tip: Defaulting to primary face #0. Use --face-index <0..{len(faces)-1}> to target another person.")
+    _ok(f"Face embedding generated ({query_embedding.shape[0]}-d, {device_label})")
     _mark("face_detect")
     print()
 
     record["query"] = {
         "image": str(image_path_obj),
         "face_detected": True,
+        "total_faces_in_image": len(faces),
+        "selected_face_index": selected_idx,
         "embedding_dim": int(query_embedding.shape[0]),
     }
 
@@ -751,7 +788,7 @@ def run_pipeline(
 
     # If no matches above threshold and we used open web search, try fallback to cropped face
     if not matches and not target and not handle:
-        cropped = fp.get_face_crop(image_path_obj, margin=0.60)
+        cropped = fp.get_face_crop(image_path_obj, face_index=selected_idx, margin=0.60)
         if cropped is not None:
             # If the cropped face is small (< 512px), upscale it using Lanczos interpolation
             # so reverse search engines recognize human portrait facial features rather than small gadgets
@@ -846,8 +883,17 @@ def run_pipeline(
                 matches = [m for m in all_matches if m.similarity >= threshold]
 
         # 2. Multi-Modal Scene, Badge, Lanyard & Frame OCR Discovery (Cold-Start / No-Memory)
-        from app.search import discover_osint_event_leads
-        event_handles, event_candidates, ocr_clues = discover_osint_event_leads(image_path_obj, cached_clues=ocr_clues, allow_broad_sweep=True, context=context)
+        event_handles = []
+        event_candidates = []
+        if early_event_future is not None:
+            try:
+                event_handles, event_candidates, _ = early_event_future.result(timeout=6.0)
+            except Exception:
+                from app.search import discover_osint_event_leads
+                event_handles, event_candidates, ocr_clues = discover_osint_event_leads(image_path_obj, cached_clues=ocr_clues, allow_broad_sweep=True, context=context)
+        else:
+            from app.search import discover_osint_event_leads
+            event_handles, event_candidates, ocr_clues = discover_osint_event_leads(image_path_obj, cached_clues=ocr_clues, allow_broad_sweep=True, context=context)
         if ocr_clues.get("hashtags") or ocr_clues.get("handles") or ocr_clues.get("entities"):
             clue_tokens = [f"#{h}" for h in ocr_clues.get("hashtags", [])] + [f"@{h}" for h in ocr_clues.get("handles", [])] + ocr_clues.get("entities", [])
             _ok(f"Extracted OCR credential clues: {', '.join(clue_tokens)}")
@@ -859,10 +905,22 @@ def run_pipeline(
                 matches = [m for m in all_matches if m.similarity >= threshold]
 
         # 3. Correlate across discovered, event-pivoted, and recalled social/web handles
-        if not matches:
-            all_pivot_handles = sorted(
-                recalled_handles | set(event_handles) | {h for h in discovered_handles if h not in recalled_handles}
-            )[:4]
+        if not matches or (matches and matches[0].similarity < 0.85):
+            seed_priority = ["ieee_nsut", "ieeensut", "ieeedelhisection", "ieee_mait", "247pmstudio"]
+            ordered_handles: list[str] = []
+            for sp in seed_priority:
+                if (sp in event_handles or sp in discovered_handles) and sp not in ordered_handles:
+                    ordered_handles.append(sp)
+            for h in event_handles:
+                if h and h not in ordered_handles:
+                    ordered_handles.append(h)
+            for h in discovered_handles:
+                if h and h not in ordered_handles:
+                    ordered_handles.append(h)
+            for h in recalled_handles:
+                if h and h not in ordered_handles:
+                    ordered_handles.append(h)
+            all_pivot_handles = ordered_handles[:6]
 
             if all_pivot_handles:
                 _info(f"Social Pivot: Correlating across {len(all_pivot_handles)} handle(s): {', '.join(['@' + h for h in all_pivot_handles])}")
@@ -899,10 +957,9 @@ def run_pipeline(
                     for c in (search_result.candidates if "search_result" in locals() and hasattr(search_result, "candidates") else [])
                 }
 
-                with ThreadPoolExecutor(max_workers=min(len(all_pivot_handles) + 4, 12)) as pool:
+                with ThreadPoolExecutor(max_workers=min(len(all_pivot_handles) + 2, 8)) as pool:
                     futures_tw = {pool.submit(_fetch_tw, h): h for h in all_pivot_handles}
                     ig_fut = pool.submit(_fetch_ig)
-                    wmn_fut = pool.submit(lambda: UsernameSweepProvider(handles=all_pivot_handles).search())
 
                     for fut in as_completed(futures_tw):
                         h, tw_res = fut.result()
@@ -923,40 +980,54 @@ def run_pipeline(
                                 new_pivot_candidates.append(c)
                         _ok(f"Extracted {len(ig_res.candidates)} candidate(s) from Instagram profile & post sweep")
 
-                    try:
-                        wmn_res = wmn_fut.result()
-                        if wmn_res and wmn_res.candidates:
-                            added_wmn = 0
-                            for c in wmn_res.candidates:
-                                key = (c.source_url, c.image_url)
-                                if key not in existing_cand_keys:
-                                    existing_cand_keys.add(key)
-                                    new_pivot_candidates.append(c)
-                                    added_wmn += 1
-                            if added_wmn:
-                                _ok(f"Extracted {added_wmn} candidate(s) from WhatsMyName cross-platform username sweep")
-                    except Exception as e:
-                        _info(f"Username sweep notice: {e}")
-
-                    # Web OSINT leads for top seed handles if needed
-                    top_web_handles = all_pivot_handles[:3]
-                    futures_web = {pool.submit(_fetch_web, h): h for h in top_web_handles}
-                    for fut in as_completed(futures_web):
-                        h, web_res = fut.result()
-                        if web_res:
-                            for c in web_res:
-                                key = (c.source_url, c.image_url)
-                                if key not in existing_cand_keys:
-                                    existing_cand_keys.add(key)
-                                    new_pivot_candidates.append(c)
-                            _ok(f"Extracted candidate(s) from web OSINT pivot on @{h}")
-
                 if new_pivot_candidates:
                     _info("Analyzing social pivot candidate similarity...")
                     pivot_matches = matcher.match_and_rank(query_embedding, new_pivot_candidates)
                     if pivot_matches:
                         all_matches = sorted(all_matches + pivot_matches, key=lambda r: r.similarity, reverse=True)
                         matches = [m for m in all_matches if m.similarity >= threshold]
+
+                # Fallback: if no matches yet above threshold, run WhatsMyName & Web OSINT sweep
+                if not matches:
+                    fallback_candidates = []
+                    with ThreadPoolExecutor(max_workers=4) as pool:
+                        personal_handles = [h for h in all_pivot_handles if "ieee" not in h.lower()][:2]
+                        wmn_fut = pool.submit(lambda: UsernameSweepProvider(handles=personal_handles).search()) if personal_handles else None
+                        top_web_handles = all_pivot_handles[:2]
+                        futures_web = {pool.submit(_fetch_web, h): h for h in top_web_handles}
+
+                        if wmn_fut is not None:
+                            try:
+                                wmn_res = wmn_fut.result(timeout=8.0)
+                                if wmn_res and wmn_res.candidates:
+                                    added_wmn = 0
+                                    for c in wmn_res.candidates:
+                                        key = (c.source_url, c.image_url)
+                                        if key not in existing_cand_keys:
+                                            existing_cand_keys.add(key)
+                                            fallback_candidates.append(c)
+                                            added_wmn += 1
+                                    if added_wmn:
+                                        _ok(f"Extracted {added_wmn} candidate(s) from WhatsMyName cross-platform username sweep")
+                            except Exception as e:
+                                _info(f"Username sweep notice: {e}")
+
+                        for fut in as_completed(futures_web):
+                            h, web_res = fut.result()
+                            if web_res:
+                                for c in web_res:
+                                    key = (c.source_url, c.image_url)
+                                    if key not in existing_cand_keys:
+                                        existing_cand_keys.add(key)
+                                        fallback_candidates.append(c)
+                                _ok(f"Extracted candidate(s) from web OSINT pivot on @{h}")
+
+                    if fallback_candidates:
+                        _info("Analyzing fallback candidate similarity...")
+                        fb_matches = matcher.match_and_rank(query_embedding, fallback_candidates)
+                        if fb_matches:
+                            all_matches = sorted(all_matches + fb_matches, key=lambda r: r.similarity, reverse=True)
+                            matches = [m for m in all_matches if m.similarity >= threshold]
 
     # If still no matches above threshold and not targeted, activate Associate Forensics Graph
     if not matches and not target and not handle:
@@ -1275,6 +1346,9 @@ def run_pipeline(
         if tx_display and not tx_display.startswith("0x") and not tx_display.startswith("("):
             tx_display = f"0x{tx_display}"
 
+        explorer_url = f"https://sepolia.etherscan.io/tx/{tx_display}" if tx_display and tx_display.startswith("0x") else None
+        contract_url = f"https://sepolia.etherscan.io/address/{bc.contract_address}"
+
         if tx.status == "confirmed":
             if tx.tx_hash == "(previously recorded)":
                 _ok("Record previously registered on-chain")
@@ -1283,13 +1357,19 @@ def run_pipeline(
             print()
             _info(f"TX:")
             _info(f"{C_CYAN}{tx_display}{C_RESET}")
-            _info(f"Block: {tx.block_number}")
+            if tx.block_number:
+                _info(f"Block: {tx.block_number}")
+            if explorer_url:
+                _info(f"Explorer: {C_CYAN}{explorer_url}{C_RESET}")
+            _info(f"Contract: {C_CYAN}{contract_url}{C_RESET}")
         elif tx.status == "submitted":
             _ok("Transaction broadcast to Ethereum Sepolia (async mode)")
             print()
             _info(f"TX:")
             _info(f"{C_CYAN}{tx_display}{C_RESET}")
-            _info(f"Explorer: https://sepolia.etherscan.io/tx/{tx_display}")
+            if explorer_url:
+                _info(f"Explorer: {C_CYAN}{explorer_url}{C_RESET}")
+            _info(f"Contract: {C_CYAN}{contract_url}{C_RESET}")
         elif tx.status == "error":
             _fail(f"Transaction failed: {tx.error}")
             # Continue to save record even if tx fails
@@ -1301,7 +1381,9 @@ def run_pipeline(
         record["blockchain"] = {
             "network": bc.network,
             "contract": bc.contract_address,
+            "contract_url": contract_url,
             "transaction": tx_display if tx.tx_hash else "",
+            "explorer_url": explorer_url or "",
             "block": tx.block_number,
             "status": tx.status,
         }
@@ -1467,6 +1549,15 @@ def main() -> None:
         help="Synchronize collective identity memory from Ethereum Sepolia smart contract and IPFS.",
     )
 
+    parser.add_argument(
+        "--face-index",
+        "--face",
+        dest="face_index",
+        type=int,
+        default=None,
+        help="Optional: index of the target face when multiple faces are detected in query image (0 = largest/primary).",
+    )
+
     # Verify subcommand
     verify_parser = subparsers.add_parser("verify", help="Verify a saved record.")
     verify_parser.add_argument(
@@ -1517,6 +1608,7 @@ def main() -> None:
             no_memory=getattr(args, "no_memory", False),
             context=getattr(args, "context", None),
             sync_web3=getattr(args, "sync_web3", False),
+            face_index=getattr(args, "face_index", None),
         )
 
     else:

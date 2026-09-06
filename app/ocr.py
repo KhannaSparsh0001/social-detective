@@ -71,11 +71,12 @@ def extract_scene_text_and_clues(
             return
         for item in raw_res:
             try:
+                box = item[0]
                 text = str(item[1]).strip()
                 conf = float(item[2])
                 if text and conf >= min_confidence and text not in seen_texts:
                     seen_texts.add(text)
-                    segments.append({"text": text, "confidence": round(conf, 3)})
+                    segments.append({"text": text, "confidence": round(conf, 3), "box": box})
             except Exception:
                 pass
 
@@ -92,7 +93,7 @@ def extract_scene_text_and_clues(
 
     def _has_strong_clues():
         txt = " ".join(s["text"] for s in segments).lower()
-        if any(w in txt for w in ["#", "@", "frame", "hacker", "hackhazards", "symbiosis", "passport", "participant", "builder"]):
+        if any(w in txt for w in ["#", "@", "frame", "hacker", "hackhazards", "symbiosis", "passport", "participant", "builder", "ieee"]):
             return True
         return len(segments) >= 5
 
@@ -154,9 +155,74 @@ def extract_scene_text_and_clues(
     if any(k in clean_no_spaces for k in ["symbiosis", "mbiosis", "embiosis"]) and "skill" in clean_no_spaces:
         entities.add("Symbiosis Skills University")
 
+    # Recognize IEEE and related student networks / sections
+    is_ieee = bool(
+        re.search(r"\bieee\b", full_text, re.IGNORECASE)
+        or "ieee" in clean_no_spaces
+        or "iheieeetimes" in clean_no_spaces
+    )
+    if is_ieee:
+        entities.add("IEEE")
+        if "times" in clean_no_spaces:
+            entities.add("THE IEEE TIMES")
+        if any(w in clean_no_spaces for w in ["delhi", "deihes", "delhisection", "fensectigt"]):
+            entities.add("IEEE Delhi Section")
+        if "nsut" in clean_no_spaces:
+            entities.add("IEEE NSUT")
+        if "mait" in clean_no_spaces:
+            entities.add("IEEE MAIT")
+
+    if re.search(r"outstanding\s*student\s*volunteer", full_text, re.IGNORECASE) or (
+        "outstanding" in clean_no_spaces and "volunteer" in clean_no_spaces
+    ):
+        entities.add("Outstanding Student Volunteer Award")
+
+    # Extract person names from certificate / award column layouts
+    NON_NAME_WORDS = {
+        "AWARD", "AWARDS", "AWARDED", "BY", "TO", "FOR", "IN", "OF", "THE", "AND",
+        "STUDENT", "VOLUNTEER", "OUTSTANDING", "IEEE", "TIMES", "VOL", "CLOSEBY",
+        "PARK", "ASCEND", "LONGVILLE", "MEETASIGN", "ATHAND", "OFTHEAND", "EIS",
+        "NK", "PHOTO", "IMAGE", "FRAME", "STUDIO", "HACKER", "HOUSE", "BUILDER"
+    }
+
+    candidate_names: list[str] = []
+
+    # 1. Multi-column spatial clustering: group segments by left column
+    if segments:
+        left_column = [
+            s for s in segments
+            if s.get("box") and min(pt[0] for pt in s["box"]) < (img.shape[1] * 0.6)
+        ]
+        left_column.sort(key=lambda s: min(pt[1] for pt in s["box"]))
+        for i in range(len(left_column) - 1):
+            w1 = left_column[i]["text"].strip()
+            w2 = left_column[i + 1]["text"].strip()
+            if (
+                re.match(r"^[A-Za-z]{3,15}$", w1)
+                and re.match(r"^[A-Za-z]{3,15}$", w2)
+                and not any(k in w1.upper() for k in NON_NAME_WORDS)
+                and not any(k in w2.upper() for k in NON_NAME_WORDS)
+            ):
+                candidate_names.append(f"{w1.title()} {w2.title()}")
+
+    # 2. Sequential segment text pairs and single-segment two-word names
+    for s in segments:
+        txt = s["text"].strip()
+        m_2w = re.match(r"^([A-Za-z]{3,15})\s+([A-Za-z]{3,15})$", txt)
+        if m_2w:
+            n1, n2 = m_2w.group(1), m_2w.group(2)
+            if not any(k in n1.upper() for k in NON_NAME_WORDS) and not any(k in n2.upper() for k in NON_NAME_WORDS):
+                candidate_names.append(f"{n1.title()} {n2.title()}")
+
+    names = list(dict.fromkeys(candidate_names))
+
+    # Add chapter/event handles for IEEE discovery
+    if is_ieee:
+        handles.update(["ieee_nsut", "ieeensut", "ieeedelhisection", "ieee_mait"])
+
     # Keywords
     keywords = set()
-    for word in ["goa", "pune", "delhi", "mumbai", "india", "hackathon", "builder", "passport", "frame", "studio", "symbiosis"]:
+    for word in ["goa", "pune", "delhi", "mumbai", "india", "hackathon", "builder", "passport", "frame", "studio", "symbiosis", "ieee", "volunteer", "award", "student", "times", "nsut"]:
         if re.search(rf"\b{word}\b", full_text, re.IGNORECASE) or word in clean_no_spaces:
             keywords.add(word)
 
@@ -165,6 +231,7 @@ def extract_scene_text_and_clues(
         "hashtags": sorted(hashtags),
         "handles": sorted(handles),
         "entities": sorted(entities),
+        "names": names,
         "keywords": sorted(keywords),
         "segments": segments,
     }

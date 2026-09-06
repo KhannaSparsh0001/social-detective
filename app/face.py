@@ -139,30 +139,58 @@ class FaceProcessor:
         faces = self._app.get(img)
         return faces
 
-    def get_embedding(self, image_path: str | Path) -> np.ndarray:
+    def get_embedding(
+        self,
+        image_path: str | Path,
+        face_index: Optional[int] = None,
+        auto_select_largest: bool = True,
+    ) -> np.ndarray:
         """
-        Detect exactly one face and return its 512-d ArcFace embedding.
+        Detect face(s) in *image_path* and return a 512-d ArcFace embedding.
+
+        Parameters
+        ----------
+        image_path : str | Path
+            Path to the image file.
+        face_index : Optional[int]
+            When multiple faces are detected, specifies which face to use (0 = largest/primary).
+        auto_select_largest : bool
+            If True (default) and face_index is None, automatically selects the largest face.
 
         Raises
         ------
         FaceProcessingError
-            If zero or more than one face is detected, or the image is invalid.
+            If no face is detected, or the requested face_index is out of range.
         """
         faces = self.detect_faces(image_path)
 
         if len(faces) == 0:
             raise FaceProcessingError(
                 "No face detected in the image. "
-                "Please provide a clear photo containing exactly one face."
+                "Please provide a clear photo containing a face."
             )
 
-        if len(faces) > 1:
+        # Sort detected faces by bounding-box area descending (largest first)
+        def _area(f):
+            bbox = f.bbox
+            return float((bbox[2] - bbox[0]) * (bbox[3] - bbox[1]))
+
+        faces.sort(key=_area, reverse=True)
+
+        if len(faces) > 1 and not auto_select_largest and face_index is None:
             raise FaceProcessingError(
                 f"Multiple faces detected ({len(faces)}). "
-                "Please provide an image containing exactly one face."
+                f"Please specify --face-index <0..{len(faces)-1}> to select a face."
             )
 
-        face = faces[0]
+        idx = face_index if face_index is not None else 0
+        if idx < 0 or idx >= len(faces):
+            raise FaceProcessingError(
+                f"Invalid face_index {idx}. Image has {len(faces)} detected face(s) "
+                f"(valid indices: 0 to {len(faces)-1})."
+            )
+
+        face = faces[idx]
         embedding = face.embedding  # 512-d float32 vector
         if embedding is None:
             raise FaceProcessingError("Face detected but embedding extraction failed.")
@@ -196,11 +224,14 @@ class FaceProcessor:
         return best.embedding
 
     def get_face_crop(
-        self, image_path: str | Path, margin: float = 0.35
+        self,
+        image_path: str | Path,
+        face_index: Optional[int] = None,
+        margin: float = 0.35,
     ) -> Optional[np.ndarray]:
         """
-        Detect faces in *image_path* and return a cropped BGR image of the largest face
-        with an added margin/padding (default 35% around the bounding box).
+        Detect faces in *image_path* and return a cropped BGR image of the target face
+        (0 = largest face) with an added margin/padding (default 35% around the bounding box).
         Returns None if no face is detected or image cannot be read.
         """
         image_path = str(image_path)
@@ -213,10 +244,13 @@ class FaceProcessor:
 
         def _area(f):
             bbox = f.bbox
-            return (bbox[2] - bbox[0]) * (bbox[3] - bbox[1])
+            return float((bbox[2] - bbox[0]) * (bbox[3] - bbox[1]))
 
-        best = max(faces, key=_area)
-        x1, y1, x2, y2 = [int(v) for v in best.bbox]
+        faces.sort(key=_area, reverse=True)
+        idx = face_index if (face_index is not None and 0 <= face_index < len(faces)) else 0
+        target = faces[idx]
+
+        x1, y1, x2, y2 = [int(v) for v in target.bbox]
         h, w = img.shape[:2]
 
         pad_w = int((x2 - x1) * margin)
