@@ -60,13 +60,13 @@ with right_col:
             st.error("No faces detected in the image.")
         else:
             # Create the Tabs layout
-            tab_visuals, tab_terminal = st.tabs(["📷 Visuals", "🖥️ Terminal"])
+            tab_visuals, tab_terminal = st.tabs(["📷 Analysis Dashboard", "⚙️ Under the Hood (Logs)"])
             
             with tab_visuals:
                 # Render the annotated image inside a container for perfect scaling
                 with st.container(border=True):
                     rgb_img = cv2.cvtColor(annotated_img, cv2.COLOR_BGR2RGB)
-                    st.image(rgb_img, caption=f"Found {len(face_data)} faces", use_container_width=True)
+                    st.image(rgb_img, caption=f"Found {len(face_data)} faces")
                 
                 # Placeholder for the clean Option A status
                 status_placeholder = st.empty()
@@ -75,13 +75,45 @@ with right_col:
             with left_col:
                 st.divider()
                 st.subheader("🎯 Target Selection")
-                target_idx = st.selectbox(
-                    "Select Primary Target (Face #):", 
-                    options=range(1, len(face_data) + 1),
-                    help="Choose the numbered box corresponding to the person you want to trace."
-                )
-
-                run_btn = st.button("🚀 Run FaceTrace", type="primary", use_container_width=True)
+                
+                target_idx = None
+                if len(face_data) == 1:
+                    st.info("Single face detected. Automatically selected.")
+                    target_idx = 1
+                else:
+                    selection_mode = st.radio("Selection Mode", ["Manual Select", "Auto-Match Reference"])
+                    if selection_mode == "Manual Select":
+                        target_idx = st.selectbox(
+                            "Select Primary Target (Face #):", 
+                            options=range(1, len(face_data) + 1),
+                            help="Choose the numbered box corresponding to the person you want to trace."
+                        )
+                    else:
+                        ref_file = st.file_uploader("Upload Reference Photo (Single Person)", type=["jpg", "jpeg", "png"])
+                        if ref_file:
+                            with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as rtmp:
+                                rtmp.write(ref_file.getvalue())
+                            
+                            with st.spinner("Auto-matching target..."):
+                                try:
+                                    ref_emb = fp.get_embedding(rtmp.name)
+                                    best_idx = 0
+                                    best_sim = -1.0
+                                    for i, f_data in enumerate(face_data):
+                                        emb = f_data['embedding']
+                                        sim = np.dot(ref_emb, emb) / (np.linalg.norm(ref_emb) * np.linalg.norm(emb))
+                                        if sim > best_sim:
+                                            best_sim = sim
+                                            best_idx = i
+                                    
+                                    target_idx = best_idx + 1
+                                    st.success(f"Auto-Matched to Face #{target_idx} ({best_sim*100:.1f}% similarity)")
+                                except Exception:
+                                    st.error("No valid face found in reference photo.")
+                
+                run_btn = False
+                if target_idx is not None:
+                    run_btn = st.button("🚀 Run FaceTrace", type="primary")
 
             if run_btn:
                 # Crop the selected face to bypass the multi-face CLI limitation
@@ -127,7 +159,7 @@ with right_col:
                     st.caption("Raw execution logs are streaming below...")
                     log_container = st.empty()
 
-                with status_placeholder.status("Initializing Pipeline...", expanded=True) as status:
+                with status_placeholder.status(f"Hunting for Target #{target_idx}...", expanded=True) as status:
                     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding="utf-8", errors="replace")
                     
                     full_log = ""
@@ -163,8 +195,8 @@ with right_col:
                 
                 with tab_visuals:
                     if process.returncode == 0:
-                        st.success("Target successfully traced! Check Terminal tab for complete log details.")
+                        st.success("Target successfully traced! Check 'Under the Hood' tab for log details.")
                     else:
-                        st.error(f"Pipeline exited with error code {process.returncode}. See Terminal tab.")
+                        st.error(f"Pipeline exited with error code {process.returncode}. See 'Under the Hood' tab.")
     else:
         st.info("Upload an image to begin.")
