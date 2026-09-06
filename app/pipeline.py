@@ -691,13 +691,32 @@ def run_pipeline(
                         
                         if selected_faces:
                             print("\n  Extracting metadata from crowd profiles...")
+                            
+                            # Phase 2: Biometric Memory Scan
+                            memory_tags = []
+                            try:
+                                from app.memory.graph import IdentityKnowledgeGraph
+                                import numpy as np
+                                graph = IdentityKnowledgeGraph()
+                                for sf in selected_faces:
+                                    f_idx = int(sf.split('#')[1])
+                                    bg_face = faces[f_idx]
+                                    person, sim = graph.find_nearest_person(np.array(bg_face['embedding']), threshold=0.65)
+                                    if person and getattr(person, 'status', 'verified') != "pending":
+                                        if person.events:
+                                            memory_tags.extend([f"#{ev.replace(' ', '')}" for ev in person.events])
+                                        if person.associates:
+                                            memory_tags.extend([f"@{a.replace(' ', '')}" for a in person.associates])
+                            except Exception:
+                                pass
+
                             dummy_candidates = [
                                 Candidate(image_url="", source_url="", title="Attended #HackHazards 2026 at Stanford University", domain="stanford.edu"),
                                 Candidate(image_url="", source_url="", title="Software Engineer @Google - @JohnDoe", domain="linkedin.com"),
                                 Candidate(image_url="", source_url="", title="Team photo from the #AI retreat", domain="instagram.com")
                             ]
                             cm = ContextManager()
-                            tags = cm.process_and_suggest(dummy_candidates)
+                            tags = cm.process_and_suggest(dummy_candidates, memory_tags=memory_tags)
                             
                             selected_tags = questionary.checkbox("Select context keywords to inject into the next search:", choices=tags).ask()
                             

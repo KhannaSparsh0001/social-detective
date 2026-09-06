@@ -89,18 +89,35 @@ class ContextManager:
         ranked = sorted(scored_tags.items(), key=lambda x: x[1], reverse=True)
         return [tag for tag, score in ranked]
 
-    def auto_select(self, candidates: List[Candidate], top_k: int = 5) -> List[str]:
+    def auto_select(self, candidates: List[Candidate], top_k: int = 5, memory_tags: List[str] = None) -> List[str]:
         """
         Parses candidates and returns the top K most potent tags.
+        Prioritizes memory_tags if provided.
         """
+        memory_tags = memory_tags or []
+        formatted_memory_tags = [f"[MEMORY] {tag}" for tag in memory_tags]
+        
         raw_tags = self.extract_tags(candidates)
         ranked_tags = self.score_and_rank_tags(raw_tags)
-        return ranked_tags[:top_k]
+        
+        # Filter out scraped tags that are already in memory_tags
+        filtered_ranked = [t for t in ranked_tags if t not in memory_tags]
+        
+        final_tags = formatted_memory_tags + filtered_ranked
+        return final_tags[:top_k]
 
-    def process_and_suggest(self, candidates: List[Candidate]) -> List[str]:
+    def process_and_suggest(self, candidates: List[Candidate], memory_tags: List[str] = None) -> List[str]:
         """
-        Full pipeline: Takes candidates, extracts tags, ranks them,
+        Full pipeline: Takes candidates and memory_tags, extracts tags, ranks them,
         and returns the full ranked list for manual selection in UI.
         """
+        memory_tags = memory_tags or []
+        formatted_memory_tags = [f"[MEMORY] {tag}" for tag in memory_tags]
+        
         raw_tags = self.extract_tags(candidates)
-        return self.score_and_rank_tags(raw_tags)
+        ranked_tags = self.score_and_rank_tags(raw_tags)
+        
+        # Filter out scraped tags that are already in memory_tags
+        filtered_ranked = [t for t in ranked_tags if t not in memory_tags]
+        
+        return formatted_memory_tags + filtered_ranked
