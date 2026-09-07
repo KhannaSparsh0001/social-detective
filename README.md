@@ -463,7 +463,45 @@ When a primary target cannot be found visually, investigators can pivot to searc
 3. **Manual Consent Background Search**: The Streamlit Dashboard dynamically detects pending targets and asks for consent before spinning up an asynchronous, non-blocking Python background thread to hunt for Target A using the newly discovered context from Target B.
 4. **Resolution & Delayed Discovery Notarization**: If the background thread finds Target A, the UI alerts the user, and the blockchain is updated with an immutable `initial_timestamp->resolved_timestamp` delay payload!
 
-*(Note: The full C3 and Crowd-Context architectural diagrams will be available in Phase 2 of this documentation update).*
+#### Crowd Context Extraction Diagram
+```mermaid
+sequenceDiagram
+    participant UI as Streamlit UI
+    participant P as Pipeline (Phase 2)
+    participant AF as ArcFace Model
+    participant CM as ContextManager
+    participant L as SerpAPI Lens
+    
+    UI->>P: Target B (Crowd Pivot)
+    P->>AF: Extract Background Faces
+    AF-->>P: Ranked Faces (by Size)
+    P->>L: Visual Search Background Faces
+    L-->>P: Scraped Meta, Titles & URLs
+    P->>CM: Feed Raw Metadata
+    CM->>CM: NLP Stop Word Stripping
+    CM->>CM: Score #Hashtags & @Domains
+    CM-->>UI: Top 5 Potent Keywords
+    UI->>L: Inject Keywords into Target A Search
+```
+
+#### C3 Lifecycle Flowchart
+```mermaid
+flowchart TD
+    classDef pending fill:#b91c1c,stroke:#f87171,color:#ffffff,stroke-width:2px
+    classDef pivot fill:#0284c7,stroke:#38bdf8,color:#ffffff,stroke-width:2px
+    classDef memory fill:#047857,stroke:#34d399,color:#ffffff,stroke-width:2px
+    classDef ui fill:#7e22ce,stroke:#c084fc,color:#ffffff,stroke-width:2px
+    classDef chain fill:#c2410c,stroke:#fb923c,color:#ffffff,stroke-width:2px
+
+    A[Target A: Primary Search Fails]:::pending --> B(Watchlist: Ingest as 'Pending')
+    B --> C[Target B: Crowd Pivot Initiated]:::pivot
+    C --> D{Biometric Memory Scan}
+    D -->|Background Face Matches Watchlist| E[Pull Historical Meta as MEMORY Tag]:::memory
+    E --> F[Dashboard: Prompt Manual Consent]:::ui
+    F -->|Consent Granted| G(Async Background Thread Hunts Target A)
+    G -->|Target Found| H[Update Status: Resolved]
+    H --> I[Ethereum: Delayed Discovery Notarization]:::chain
+```
 
 ---
 
