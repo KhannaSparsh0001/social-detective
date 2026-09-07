@@ -1314,14 +1314,55 @@ def run_pipeline(
                                         time.sleep(2) # Simulate heavy visual correlation
                                         if rescue_results:
                                             _ok(f"🎉 Target Resolved! Rescue search found {len(rescue_results)} matches using Crowd Context!")
+                                            
+                                            from app.content import DiscoveredContent, ContentRetriever
+                                            from app.hashing import generate_fingerprint
+                                            from urllib.parse import urlparse
+                                            
+                                            hit = rescue_results[0]
+                                            hit_href = hit.get('href', '')
+                                            domain = urlparse(hit_href).netloc if hit_href else "Web"
+                                            
+                                            content = DiscoveredContent(
+                                                source_url=hit_href,
+                                                platform=domain,
+                                                title=hit.get('title', ''),
+                                                text=hit.get('body', ''),
+                                            )
+                                            canon = ContentRetriever.canonicalize(content)
+                                            content_hash = generate_fingerprint(canon)
+                                            _info(f"Rescue Content Fingerprint: {content_hash}")
+                                            
+                                            initial_ts = None
+                                            resolved_ts = str(int(time.time()))
                                             try:
                                                 kg = IdentityKnowledgeGraph()
                                                 pending = kg.get_pending_targets()
                                                 if pending:
+                                                    initial_ts = pending[-1].timestamp
                                                     kg.mark_resolved(pending[-1].id)
                                             except Exception:
                                                 pass
-                                            
+                                                
+                                            if not skip_blockchain:
+                                                from app.config import require_blockchain_config
+                                                from app.blockchain import BlockchainClient
+                                                try:
+                                                    rpc, pk, ca = require_blockchain_config()
+                                                    bc = BlockchainClient(rpc, pk, ca)
+                                                    _info("Anchoring Delayed Discovery on Ethereum Sepolia...")
+                                                    tx = bc.register_hash(
+                                                        content_hash, 
+                                                        source_id=domain, 
+                                                        initial_timestamp=initial_ts, 
+                                                        resolved_timestamp=resolved_ts
+                                                    )
+                                                    _ok(f"Blockchain Notarized! Tx Hash: {tx.tx_hash}")
+                                                except Exception as e:
+                                                    _fail(f"Blockchain registration failed: {e}")
+                                            else:
+                                                _info("Blockchain notarization skipped (--skip-blockchain).")
+                                                
                                             for r in rescue_results:
                                                 print(f"  - {r.get('title')}: {r.get('href')}")
                                             print()
