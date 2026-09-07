@@ -1,193 +1,234 @@
-<p align="center">
-  <h1 align="center">🔍 FaceTrace (SocialDetective)</h1>
-  <p align="center">
-    <strong>Autonomous Biometric OSINT Facial Recognition, Decentralized Web3 Knowledge Graph & Immutable Blockchain Notarization Pipeline</strong>
-  </p>
-  <p align="center">
-    <a href="https://python.org"><img src="https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.14-3776AB?logo=python&logoColor=white" alt="Python Version" /></a>
-    <a href="https://github.com/deepinsight/insightface"><img src="https://img.shields.io/badge/Biometrics-InsightFace%20ArcFace%20512--d-7952B3?logo=opencv&logoColor=white" alt="InsightFace ArcFace" /></a>
-    <a href="https://onnxruntime.ai"><img src="https://img.shields.io/badge/Inference-ONNX%20Runtime%20CUDA%20%2F%20CPU-005CED?logo=onnx&logoColor=white" alt="ONNX Runtime" /></a>
-    <a href="https://ipfs.tech"><img src="https://img.shields.io/badge/Storage-IPFS%20CIDv1%20Decentralized-65C2CB?logo=ipfs&logoColor=white" alt="IPFS Storage" /></a>
-    <a href="https://sepolia.etherscan.io/address/0xe25BfF359d31b3E2B3fF99692E6cE025f273BC21"><img src="https://img.shields.io/badge/Ethereum-Sepolia%20Testnet-627EEA?logo=ethereum&logoColor=white" alt="Sepolia Contract" /></a>
-    <a href="https://soliditylang.org"><img src="https://img.shields.io/badge/Smart%20Contract-Solidity%200.8.19-363636?logo=solidity&logoColor=white" alt="Solidity" /></a>
-    <a href="https://web3py.readthedocs.io"><img src="https://img.shields.io/badge/Web3-Web3.py-F16822?logo=ethereum&logoColor=white" alt="Web3.py" /></a>
-  </p>
-  <p align="center">
-    <a href="https://serpapi.com"><img src="https://img.shields.io/badge/Search-SerpAPI%20Google%20Lens-4285F4?logo=google&logoColor=white" alt="SerpAPI Google Lens" /></a>
-    <a href="https://yandex.com/images"><img src="https://img.shields.io/badge/Visual%20Search-Yandex%20Images-FC3F1D?logo=yandex&logoColor=white" alt="Yandex Images" /></a>
-    <a href="https://duckduckgo.com"><img src="https://img.shields.io/badge/Fallback-DuckDuckGo%20Search-DE5833?logo=duckduckgo&logoColor=white" alt="DuckDuckGo" /></a>
-    <a href="https://instagram.com"><img src="https://img.shields.io/badge/OSINT-Instagram%20Reels%20%26%20Carousels-E4405F?logo=instagram&logoColor=white" alt="Instagram" /></a>
-    <a href="https://x.com"><img src="https://img.shields.io/badge/OSINT-X%20%2F%20Twitter-000000?logo=x&logoColor=white" alt="X/Twitter" /></a>
-    <a href="https://linkedin.com"><img src="https://img.shields.io/badge/OSINT-LinkedIn%20Network-0A66C2?logo=linkedin&logoColor=white" alt="LinkedIn" /></a>
-  </p>
-  <p align="center">
-    <a href="https://en.wikipedia.org/wiki/SHA-2"><img src="https://img.shields.io/badge/Fingerprint-SHA--256-555555" alt="SHA-256" /></a>
-    <a href="https://pytest.org"><img src="https://img.shields.io/badge/Test%20Suite-107%20Passed-2ea44f?logo=pytest&logoColor=white" alt="Pytest Suite" /></a>
-    <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT" /></a>
-  </p>
-</p>
+<div align="center">
+
+# FaceTrace (SocialDetective)
+
+### Autonomous Biometric OSINT Facial Recognition, Decentralized Web3 Knowledge Graph & Immutable Blockchain Notarization
+
+[![Python Version](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.14-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
+[![InsightFace ArcFace](https://img.shields.io/badge/Biometrics-InsightFace%20ArcFace%20512--d-7952B3?style=for-the-badge&logo=opencv&logoColor=white)](https://github.com/deepinsight/insightface)
+[![ONNX Runtime](https://img.shields.io/badge/Inference-ONNX%20Runtime%20CUDA%20%2F%20CPU-005CED?style=for-the-badge&logo=onnx&logoColor=white)](https://onnxruntime.ai)
+
+[![IPFS Storage](https://img.shields.io/badge/Storage-IPFS%20CIDv1%20Decentralized-65C2CB?style=for-the-badge&logo=ipfs&logoColor=white)](https://ipfs.tech)
+[![Sepolia Contract](https://img.shields.io/badge/Ethereum-Sepolia%20Testnet-627EEA?style=for-the-badge&logo=ethereum&logoColor=white)](https://sepolia.etherscan.io/address/0xe25BfF359d31b3E2B3fF99692E6cE025f273BC21)
+[![Solidity](https://img.shields.io/badge/Smart%20Contract-Solidity%200.8.19-363636?style=for-the-badge&logo=solidity&logoColor=white)](https://soliditylang.org)
+[![Web3.py](https://img.shields.io/badge/Web3-Web3.py-F16822?style=for-the-badge&logo=ethereum&logoColor=white)](https://web3py.readthedocs.io)
+
+[![SerpAPI Google Lens](https://img.shields.io/badge/Search-SerpAPI%20Google%20Lens-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://serpapi.com)
+[![Yandex Images](https://img.shields.io/badge/Visual%20Search-Yandex%20Images-FC3F1D?style=for-the-badge&logo=yandex&logoColor=white)](https://yandex.com/images)
+[![DuckDuckGo](https://img.shields.io/badge/Fallback-DuckDuckGo%20Search-DE5833?style=for-the-badge&logo=duckduckgo&logoColor=white)](https://duckduckgo.com)
+[![Instagram](https://img.shields.io/badge/OSINT-Instagram%20Reels%20%26%20Carousels-E4405F?style=for-the-badge&logo=instagram&logoColor=white)](https://instagram.com)
+[![X/Twitter](https://img.shields.io/badge/OSINT-X%20%2F%20Twitter-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com)
+[![LinkedIn](https://img.shields.io/badge/OSINT-LinkedIn%20Network-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com)
+
+[![Pytest Suite](https://img.shields.io/badge/Test%20Suite-115%20Passed-2ea44f?style=for-the-badge&logo=pytest&logoColor=white)](https://pytest.org)
+[![SHA-256](https://img.shields.io/badge/Fingerprint-SHA--256-555555?style=for-the-badge)](https://en.wikipedia.org/wiki/SHA-2)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
+
+<br/>
+
+**A production-grade forensic OSINT framework bridging deep facial biometrics, zero-CAPTCHA visual reverse search, decentralized IPFS collective memory, and immutable Ethereum blockchain notarization.**
+
+</div>
 
 ---
 
-## 📌 Table of Contents
+## Table of Contents
 
-- [💡 Overview & Architecture Highlights](#-overview--architecture-highlights)
-- [🔄 Pipeline Workflow](#-pipeline-workflow)
-- [🌐 Decentralized Web3 Memory & Collective Intelligence](#-decentralized-web3-memory--collective-intelligence)
-- [🏗 System Architecture](#-system-architecture)
-- [⚡ Key Capabilities & Technical Innovations](#-key-capabilities--technical-innovations)
-- [⛓️ Which Blockchain We Used & Why](#️-which-blockchain-we-used--why)
-- [🚀 How to Run It (Setup & Execution Guide)](#-how-to-run-it-setup--execution-guide)
-- [🛡️ Independent Verification & Tamper Detection](#️-independent-verification--tamper-detection)
-- [⚠️ Known Limitations](#️-known-limitations)
-- [🎬 Demonstration & Audit Guide](#-demonstration--audit-guide)
-- [📁 Repository Structure](#-repository-structure)
-- [🧪 Testing & Validation](#-testing--validation)
-- [⚖️ Privacy, Ethics & Responsible Disclosure](#️-privacy-ethics--responsible-disclosure)
-- [📄 License](#-license)
-
----
-
-## 💡 Overview & Architecture Highlights
-
-**FaceTrace (SocialDetective)** is a production-ready, autonomous forensic OSINT facial recognition engine and verifiable evidence-notarization framework. It bridges deep convolutional biometric intelligence with decentralized storage (IPFS) and immutable ledgers (Ethereum Sepolia) to prove content authenticity, discover cross-platform digital footprints, and detect post manipulation.
-
-### Core Architectural Pillars:
-
-| Pillar | Engineering Implementation | Forensic Value |
-|:---|:---|:---|
-| **Biometric Face Intake** | **InsightFace** deep neural network (`buffalo_l` pack) extracting normalized **512-dimensional ArcFace embeddings**. | Pose-invariant ($\pm 45^\circ$), illumination-resistant geometric representations for high-precision face matching. |
-| **Dynamic Multi-Engine Search** | Multi-engine cascade across **SerpAPI Google Lens**, **Headless Stealth Google Lens (Zero-CAPTCHA v3/upload bypass)**, **Direct Yandex Images**, **Instagram Reels & Carousels**, **X/Twitter**, and **LinkedIn Associate Networks**. | Zero hardcoded seeds; dynamically traverses social networks and public search indexes with contextual dorking (`--context`). |
-| **Decentralized Collective Memory** | Shared **Identity Knowledge Graph** powered by **IPFS CIDv1** (`bafkrei...`) and **Ethereum Sepolia On-Chain Event Synchronization** (`--sync-web3`). | Free, zero-server collective intelligence. Anyone running the repo can synchronize and query the shared biometric knowledge graph. |
-| **Multimodal Scene & GEOINT** | Contextual terrain, architectural, and environmental clue estimation via `app/geo.py`. | Correlates background scene features and landmarks to assist geolocation identification. |
-| **Deterministic Cryptographic Digest** | RFC-compliant canonical key-sorted JSON packaging + **32-byte SHA-256 fingerprint** of metadata and media bytes. | Mathematical immutability; guarantees byte-level integrity verification across platforms. |
-| **Immutable On-Chain Notarization** | Smart contract **`ContentRegistry.sol` (Solidity 0.8.19)** deployed on **Ethereum Sepolia Testnet** with IPFS CID anchoring. | Permanent public timestamping and provenance proof without storing private biometric data on-chain. |
-| **Independent Tamper Detection** | Instant verification CLI (`facetrace verify --record <path>`) comparing local computed state against on-chain records. | Immediate, tamper-evident alert (`✗ TAMPER DETECTED`) if any text, author, URL, or image pixel is altered. |
+- [Overview & Key Highlights](#overview--key-highlights)
+- [7-Phase Forensic Pipeline](#7-phase-forensic-pipeline)
+- [Decentralized Web3 Collective Memory](#decentralized-web3-collective-memory)
+- [System Architecture](#system-architecture)
+- [Technical Capabilities & Engineering Deep Dive](#technical-capabilities--engineering-deep-dive)
+  - [1. Biometric Precision & 512-d ArcFace Alignment](#1-biometric-precision--512-d-arcface-alignment)
+  - [2. Multi-Engine Visual Search & Zero-CAPTCHA Architecture](#2-multi-engine-visual-search--zero-captcha-architecture)
+  - [3. Dynamic OSINT Discovery & Contextual Dorking](#3-dynamic-osint-discovery--contextual-dorking---context)
+  - [4. Deep Instagram Video Reels & Carousel Unpacking](#4-deep-instagram-video-reels--carousel-unpacking)
+  - [5. Multi-Platform Identity Profiling](#5-multi-platform-identity-profiling---handle)
+  - [6. Cross-Platform Username Sweeps (WhatsMyName)](#6-cross-platform-username-sweeps-whatsmyname)
+  - [7. LinkedIn Public Post Harvesting](#7-linkedin-public-post-harvesting)
+  - [8. Multimodal Scene Analysis & GEOINT](#8-multimodal-scene-analysis--geoint)
+- [Blockchain Architecture: Ethereum Sepolia](#blockchain-architecture-ethereum-sepolia)
+- [Quickstart & Setup Guide](#quickstart--setup-guide)
+  - [Prerequisites](#1-prerequisites)
+  - [Installation & Virtual Environment](#2-installation--virtual-environment)
+  - [GPU Acceleration (NVIDIA CUDA)](#3-gpu-acceleration-nvidia-cuda-optional)
+  - [Environment Configuration](#4-environment-configuration)
+  - [Execution Workflows (A through H)](#5-execution-workflows)
+- [Independent Verification & Tamper Detection](#independent-verification--tamper-detection)
+- [Known Limitations & Engineering Boundaries](#known-limitations--engineering-boundaries)
+- [Demonstration & Audit Walkthrough](#demonstration--audit-walkthrough)
+- [Repository Structure](#repository-structure)
+- [Testing & Performance Validation](#testing--performance-validation)
+- [Privacy, Ethics & Responsible Disclosure](#privacy-ethics--responsible-disclosure)
+- [License](#license)
 
 ---
 
-## 🔄 Pipeline Workflow
+## Overview & Key Highlights
 
-```
-┌─────────────────────────┐
-│     Face Scan Input     │ ➔ e.g., query_portrait.jpg (+ Optional --context keywords)
-└───────────┬─────────────┘
-            ▼
-┌─────────────────────────┐
-│   Face Identification   │ ➔ Multi-landmark alignment + ArcFace 512-d normalized embedding vector
-└───────────┬─────────────┘
-            ▼
-┌─────────────────────────┐
-│ Web3 Memory Pre-Lookup  │ ➔ Query local Identity Knowledge Graph (Vector cosine similarity search)
-│ (Vector Graph Match)    │    Recalls past cases, known social handles, and associate networks
-└───────────┬─────────────┘
-            ▼
-┌─────────────────────────┐
-│ Dynamic Multi-Engine    │ ➔ Google Lens, Yandex Images, Instagram Reels/Carousels, X/Twitter, LinkedIn
-│ Reverse Visual Search   │    (Automated multi-engine cascade + Dynamic contextual dorking)
-└───────────┬─────────────┘
-            ▼
-┌─────────────────────────┐
-│ Candidate Matching &    │ ➔ Extract candidate face vectors, calculate Cosine Similarity,
-│ Content Ingestion       │    rank matches (e.g. 97.5%), and download public post metadata
-└───────────┬─────────────┘
-            ▼
-┌─────────────────────────┐
-│ Canonical Fingerprint & │ ➔ RFC key-sorted JSON + 32-byte SHA-256 hash + 
-│ Decentralized IPFS Packaging │ Deterministic IPFS CIDv1 generation (bafkrei...)
-└───────────┬─────────────┘
-            ▼
-┌─────────────────────────┐
-│ Blockchain Notarization │ ➔ Signed Ethereum Sepolia transaction calling ContentRegistry.sol
-│ & Memory Update         │    Anchors contentHash and platform|ipfs://<cid> + Learns into Knowledge Graph
-└───────────┬─────────────┘
-            ▼
-┌─────────────────────────┐
-│ Independent Verify &    │ ➔ Query on-chain record: Local Hash == On-Chain Hash
-│ Tamper Detection Audit  │    (Produces ✓ CONTENT VERIFIED or ✗ TAMPER DETECTED)
-└─────────────────────────┘
-```
+Commercial facial search engines hoard indexed identity associations behind expensive subscription paywalls and proprietary servers. When an investigator uncovers evidence, traditional platforms offer no mathematical guarantee that scraped posts, timestamps, or media haven't been retroactively manipulated.
+
+**FaceTrace (SocialDetective)** resolves both challenges:
+
+1. **Free, Decentralized Collective Intelligence**: Transforms forensic identity discovery into an open, community-indexed knowledge graph. Findings are packaged into deterministic IPFS payloads (`bafkrei...`) and synchronized across participants via Ethereum Sepolia event logs (`--sync-web3`). Zero central servers or proprietary database lock-ins.
+2. **Cryptographic Proof of Authenticity**: Packages acquired posts into canonical, key-sorted RFC-compliant payloads, computes a 32-byte SHA-256 fingerprint, and permanently seals the evidence on Ethereum Sepolia via a dedicated Solidity smart contract.
+3. **Instant Tamper Verification**: Anyone holding a forensic dossier can independently query the blockchain. If a single pixel, timestamp, handle, or caption character is altered, verification fails immediately with `✗ TAMPER DETECTED`.
+
+<br/>
+
+### Core Architectural Pillars
+
+| Pillar | Implementation | Technical & Forensic Utility |
+| :--- | :--- | :--- |
+| **Biometric Face Intake** | **InsightFace** (`buffalo_l` model pack) generating normalized **512-d ArcFace embeddings**. | Pose-invariant ($\pm 45^\circ$), illumination-resistant geometric representations for high-precision face matching. |
+| **Zero-CAPTCHA Visual Search** | Multi-engine cascade: **SerpAPI Google Lens** $\rightarrow$ **Offscreen Headless Lens** $\rightarrow$ **Direct Yandex Images**. | Bypasses Google bot challenges via raw multipart `/v3/upload` dispatches and offscreen session rendering. |
+| **Decentralized Collective Memory** | Shared **Identity Knowledge Graph** backed by **IPFS CIDv1** and **Sepolia Contract Event Sync** (`--sync-web3`). | Eliminates centralized backends. Any researcher can sync, query, and enrich the shared biometric graph. |
+| **Multimodal Scene & GEOINT** | Contextual terrain, architectural, and environmental feature estimation via `app/geo.py`. | Extracts background features and lighting clues to assist physical geolocation hypotheses. |
+| **Deterministic Hashing** | RFC-compliant canonical key-sorted JSON packaging + **32-byte SHA-256 fingerprint**. | Guarantees mathematical immutability and byte-level integrity verification across environments. |
+| **Immutable Notarization** | **`ContentRegistry.sol` (Solidity 0.8.19)** deployed on **Ethereum Sepolia Testnet** with IPFS CID anchoring. | Permanent, decentralized timestamping and provenance proof without storing private biometric data on-chain. |
+| **Independent Verification** | Standalone verification CLI (`facetrace verify --record <path>`) querying Sepolia contract state. | Immediate tamper alert (`✗ TAMPER DETECTED`) if any text, author, URL, or image pixel was altered post-registration. |
 
 ---
 
-## 🌐 Decentralized Web3 Memory & Collective Intelligence
-
-Commercial facial search platforms (like PimEyes or FaceCheck.ID) rely on centralized, proprietary, paywalled databases that hoard indexed biometric relationships.
-
-**FaceTrace introduces a Decentralized Collective Memory architecture that operates without central servers, subscriptions, or vendor lock-in:**
+## 7-Phase Forensic Pipeline
 
 ```
-                        ┌────────────────────────────────────────┐
-                        │      Ethereum Sepolia Testnet          │
-                        │  ContentRegistry.sol (0xe25BfF35...)   │
-                        │                                        │
-                        │  Event RecordRegistered(               │
-                        │    contentHash,                        │
-                        │    timestamp,                          │
-                        │    "instagram|ipfs://bafkrei..."       │
-                        │  )                                     │
-                        └───────────────────┬────────────────────┘
-                                            │
-                     On-Chain Event Sync    │    Paginated eth_getLogs
-                     (--sync-web3)          ▼
-                        ┌────────────────────────────────────────┐
-                        │          Web3MemorySyncer              │
-                        │  • Scans Sepolia Contract Events       │
-                        │  • Extracts IPFS CIDs                  │
-                        │  • Resolves via Public IPFS Gateways   │
-                        └───────────────────┬────────────────────┘
-                                            │
-                                            ▼
-                        ┌────────────────────────────────────────┐
-                        │       IdentityKnowledgeGraph           │
-                        │  • Persons & Creator Profiles          │
-                        │  • 512-d ArcFace Vector Index          │
-                        │  • Social Accounts & Associated Media  │
-                        │  • Synced to data/memory/              │
-                        └────────────────────────────────────────┘
+  [1] BIOMETRIC INTAKE        Query portrait input ➔ 5-point landmark alignment ➔ 512-d ArcFace vector
+           │
+           ▼
+  [2] MEMORY LOOKUP           Local Identity Knowledge Graph vector search (cosine similarity pre-lookup)
+           │
+           ▼
+  [3] MULTI-ENGINE SEARCH     SerpAPI Google Lens ➔ Headless Zero-CAPTCHA Lens ➔ Yandex ➔ Social Sweeps
+           │
+           ▼
+  [4] BIOMETRIC MATCHING      Candidate face extraction ➔ Cosine similarity ranking (e.g. 97.5% match)
+           │
+           ▼
+  [5] CANONICAL PACKAGING     RFC key-sorted JSON + SHA-256 fingerprint + IPFS CIDv1 (bafkrei...)
+           │
+           ▼
+  [6] BLOCKCHAIN ANCHORING    Sign Sepolia tx ➔ Anchor contentHash & platform|ipfs://<cid> in ContentRegistry.sol
+           │
+           ▼
+  [7] AUDIT & VERIFICATION    Independent verification check: Local Digest == On-Chain Digest
 ```
 
-### How It Works:
+<br/>
+
+### Pipeline Execution Breakdown
+
+- **Phase 1 — Biometric Intake & Scene Intelligence**:
+  Detects faces using InsightFace `buffalo_l`, performs 5-point landmark alignment, extracts a normalized 512-dimensional ArcFace vector, and calculates scene environmental attributes.
+
+- **Phase 2 — Decentralized Web3 Memory Pre-Lookup**:
+  Queries the local vector index (`data/memory/knowledge_graph.json`) using cosine similarity. If the face matches a previously notarized subject, prior handles and platform links are recalled immediately.
+
+- **Phase 3 — Dynamic Multi-Engine Visual Search Cascade**:
+  Dispatches reverse image searches across SerpAPI Google Lens, Headless Stealth Google Lens, Yandex Images, Instagram Reels/Carousels, X/Twitter, and LinkedIn.
+
+- **Phase 4 — Biometric Matching & Ranking**:
+  Harvests candidate images, locates candidate faces, extracts ArcFace embeddings, computes cosine similarity scores ($S_C = \frac{\mathbf{u} \cdot \mathbf{v}}{\|\mathbf{u}\|_2 \|\mathbf{v}\|_2}$), and identifies the top match exceeding the threshold.
+
+- **Phase 5 — Canonical Packaging & IPFS Fingerprinting**:
+  Gathers author information, post text, and media bytes into an RFC-compliant canonical JSON payload. Computes a deterministic IPFS CIDv1 (`bafkrei...`) and a 32-byte SHA-256 digest (`bytes32`).
+
+- **Phase 6 — Blockchain Notarization & Memory Consolidation**:
+  Submits an Ethereum Sepolia transaction invoking `registerRecord(contentHash, "platform|ipfs://<cid>")` on `ContentRegistry.sol`, then records the transaction receipt in the local forensic dossier and knowledge graph.
+
+- **Phase 7 — Independent Verification Audit**:
+  Re-computes the canonical hash from local files, queries the Sepolia smart contract, and validates authenticity (`✓ CONTENT VERIFIED` or `✗ TAMPER DETECTED`).
+
+---
+
+## Decentralized Web3 Collective Memory
+
+Traditional facial recognition platforms maintain centralized, proprietary databases. FaceTrace uses a decentralized peer-to-peer memory model where verified findings are shared openly without vendor lock-in.
+
+<br/>
+
+```
+                           ┌────────────────────────────────────────┐
+                           │        Ethereum Sepolia Testnet        │
+                           │    ContentRegistry.sol (0xe25BfF35...) │
+                           │                                        │
+                           │    Event RecordRegistered(             │
+                           │      bytes32 contentHash,              │
+                           │      uint256 timestamp,                │
+                           │      string "platform|ipfs://bafk..."  │
+                           │    )                                   │
+                           └───────────────────┬────────────────────┘
+                                               │
+                                               │  Paginated eth_getLogs
+                           On-Chain Event Sync │  (--sync-web3)
+                                               ▼
+                           ┌────────────────────────────────────────┐
+                           │            Web3MemorySyncer            │
+                           │  • Scans Sepolia Contract Event Logs   │
+                           │  • Extracts Decentralized IPFS CIDs    │
+                           │  • Resolves via Public IPFS Gateways   │
+                           └───────────────────┬────────────────────┘
+                                               │
+                                               │  Hydrate Verified Identities
+                                               ▼
+                           ┌────────────────────────────────────────┐
+                           │         IdentityKnowledgeGraph         │
+                           │  • 512-d ArcFace Biometric Index       │
+                           │  • Creator Profiles & Social Handles   │
+                           │  • Associated Evidence Records         │
+                           │  • Synced to data/memory/              │
+                           └────────────────────────────────────────┘
+```
+
+<br/>
+
+### How Decentralized Synchronization Operates
+
 1. **Deterministic IPFS Packaging (`IPFSClient`)**:
-   - Each verified match is packaged into an RFC-compliant canonical payload containing the discovered identity metadata, social platform URLs, post timestamps, and the 512-dimensional ArcFace biometric vector.
-   - The payload is hashed into a deterministic **IPFS CIDv1** (`bafkrei...` via sha256-raw codec) and cached locally in `data/memory/ipfs_cache/`.
-2. **On-Chain Notarization with IPFS Anchoring**:
-   - When registering evidence on Ethereum Sepolia, the smart contract's `sourceId` parameter is formatted as:
-     ```
-     <platform>|ipfs://<cid>
-     ```
-   - This permanently anchors the decentralized payload identifier onto the blockchain alongside the immutable SHA-256 content digest.
-3. **Decentralized Multi-User Synchronization (`--sync-web3`)**:
-   - Any user who clones or forks the repository can run:
-     ```bash
-     python -m app.main --sync-web3
-     ```
-   - The syncer inspects `ContentRegistry.sol` events via RPC (with automatic 9,000-block paginated chunking to comply with provider rate limits), discovers newly registered IPFS CIDs, downloads the verified payloads through public IPFS gateways (Cloudflare, IPFS.io, dweb.link), and automatically merges them into the local knowledge graph (`data/memory/knowledge_graph.json`).
-   - **Zero centralized backend required**: Every participant contributes to and benefits from the shared, cryptographically verifiable forensic knowledge base.
+   When a candidate post is confirmed, its forensic payload (metadata, post URLs, timestamps, author information, and 512-d biometric embedding) is formatted into canonical JSON. The payload is converted into an **IPFS CIDv1** identifier (`bafkrei...` via sha256-raw codec) and cached in `data/memory/ipfs_cache/`.
+
+2. **On-Chain Event Anchoring**:
+   The smart contract registers the proof with the source reference formatted as:
+   ```text
+   <platform>|ipfs://<cid>
+   ```
+   This permanently anchors the decentralized payload identifier directly alongside the immutable SHA-256 cryptographic digest.
+
+3. **Multi-User Collective Sync (`--sync-web3`)**:
+   Any investigator who clones the repository can execute:
+   ```bash
+   python -m app.main --sync-web3
+   ```
+   The syncer inspects `ContentRegistry.sol` on Sepolia using 9,000-block paginated RPC requests (respecting provider rate limits), discovers new IPFS CIDs, pulls the payloads through public IPFS gateways (Cloudflare, IPFS.io, dweb.link), and merges them into the local knowledge graph (`data/memory/knowledge_graph.json`).
+
+> [!TIP]
+> **Zero Centralized Backend**: There are no proprietary database servers to maintain or pay for. Every researcher running FaceTrace contributes to and benefits from a shared, cryptographically verifiable forensic collective memory.
 
 ---
 
-## 🏗 System Architecture
+## System Architecture
+
+The following Mermaid diagram illustrates the full modular architecture and data flows across all pipeline stages:
 
 ```mermaid
 flowchart TD
-    %% STYLING DEFINITIONS
-    classDef default fill:#111827,stroke:#374151,color:#f9fafb,stroke-width:1.5px
-    classDef inputNode fill:#0f172a,stroke:#38bdf8,color:#f8fafc,stroke-width:2px
-    classDef aiNode fill:#1e1b4b,stroke:#818cf8,color:#e0e7ff,stroke-width:2px
-    classDef memoryNode fill:#064e3b,stroke:#10b981,color:#ecfdf5,stroke-width:2px
-    classDef searchNode fill:#134e4a,stroke:#14b8a6,color:#f0fdfa,stroke-width:2px
-    classDef matchNode fill:#3b0764,stroke:#a855f7,color:#faf5ff,stroke-width:2px
-    classDef cryptoNode fill:#701a75,stroke:#f472b6,color:#fdf2f8,stroke-width:2px
-    classDef chainNode fill:#431407,stroke:#fb923c,color:#fff7ed,stroke-width:2px
-    classDef verifyNode fill:#082f49,stroke:#0ea5e9,color:#f0f9ff,stroke-width:2px
-    classDef passNode fill:#14532d,stroke:#22c55e,color:#f0fdf4,stroke-width:2.5px
-    classDef failNode fill:#7f1d1d,stroke:#ef4444,color:#fef2f2,stroke-width:2.5px
+    %% Global Styling
+    classDef default fill:#0f172a,stroke:#334155,color:#f8fafc,stroke-width:1.5px
+    classDef inputNode fill:#0284c7,stroke:#38bdf8,color:#ffffff,stroke-width:2px
+    classDef aiNode fill:#4338ca,stroke:#818cf8,color:#ffffff,stroke-width:2px
+    classDef memoryNode fill:#047857,stroke:#34d399,color:#ffffff,stroke-width:2px
+    classDef searchNode fill:#0f766e,stroke:#2dd4bf,color:#ffffff,stroke-width:2px
+    classDef matchNode fill:#7e22ce,stroke:#c084fc,color:#ffffff,stroke-width:2px
+    classDef cryptoNode fill:#be185d,stroke:#f472b6,color:#ffffff,stroke-width:2px
+    classDef chainNode fill:#c2410c,stroke:#fb923c,color:#ffffff,stroke-width:2px
+    classDef verifyNode fill:#0369a1,stroke:#38bdf8,color:#ffffff,stroke-width:2px
+    classDef passNode fill:#15803d,stroke:#4ade80,color:#ffffff,stroke-width:2.5px
+    classDef failNode fill:#b91c1c,stroke:#f87171,color:#ffffff,stroke-width:2.5px
 
     subgraph P1 ["Phase 1: Biometric Intake & Scene Intelligence"]
         direction TB
         IN(["Query Portrait & Parameters<br/>Image + CLI Flags (--context, --handle)"]):::inputNode
-        DET["InsightFace Detector (buffalo_l)<br/>5-Point Facial Landmark Alignment"]:::aiNode
+        DET["InsightFace Detector (buffalo_l)<br/>5-Point Landmark Alignment"]:::aiNode
         EMB["ArcFace Embedding Engine<br/>Normalized 512-d Biometric Vector"]:::aiNode
         GEO["Multimodal Scene & GEOINT<br/>Terrain & Environmental Analysis"]:::aiNode
 
@@ -198,7 +239,7 @@ flowchart TD
 
     subgraph P2 ["Phase 2: Decentralized Web3 Memory & Graph Lookup"]
         direction TB
-        W3_SYNC["Web3 Event Syncer (--sync-web3)<br/>Sepolia Event Logs + Public IPFS Gateways"]:::memoryNode
+        W3_SYNC["Web3 Event Syncer (--sync-web3)<br/>Sepolia Logs + Public IPFS Gateways"]:::memoryNode
         KG[("Identity Knowledge Graph<br/>data/memory/knowledge_graph.json")]:::memoryNode
         V_LOOKUP["Vector Graph Search<br/>Cosine Similarity over Indexed Faces"]:::memoryNode
 
@@ -208,18 +249,15 @@ flowchart TD
 
     subgraph P3 ["Phase 3: Dynamic Multi-Engine Search Cascade"]
         direction TB
-        SEARCH_ROUTER{"Multi-Engine Search Router"}:::searchNode
-
+        SEARCH_ROUTER{"Search Cascade Router"}:::searchNode
         T_SEARCH["Direct Target Mode<br/>Instagram, X/Twitter, Web URLs"]:::searchNode
         LENS_CASCADE["Visual Reverse Cascade<br/>SerpAPI ➔ Zero-CAPTCHA Headless ➔ Yandex"]:::searchNode
-        OSINT_PIVOT["OSINT Pivoting & Dorking<br/>WhatsMyName, LinkedIn, Context Dorks"]:::searchNode
-
+        OSINT_PIVOT["OSINT Pivots & Dorking<br/>WhatsMyName (716 sites) + LinkedIn"]:::searchNode
         MEDIA_POOL[("Candidate Media Pool<br/>High-Res Images, Video Covers, Post URLs")]:::searchNode
 
         SEARCH_ROUTER -->|"--target / --handle"| T_SEARCH
         SEARCH_ROUTER -->|"Reverse Visual"| LENS_CASCADE
         SEARCH_ROUTER -->|"Pivoting & Dorks"| OSINT_PIVOT
-
         T_SEARCH --> MEDIA_POOL
         LENS_CASCADE --> MEDIA_POOL
         OSINT_PIVOT --> MEDIA_POOL
@@ -228,8 +266,8 @@ flowchart TD
     subgraph P4 ["Phase 4: Biometric Matching & Ranking"]
         direction TB
         CAND_EMB["Candidate Face Processor<br/>Extract 512-d ArcFace Vector per Face"]:::aiNode
-        MATCHER["Cosine Similarity Engine<br/>Score = dot(q, c) / (||q|| * ||c||)"]:::matchNode
-        WINNER(["Rank #1 Top Visual Match<br/>Highest Similarity (Threshold e.g. 70%+)"]):::matchNode
+        MATCHER["Cosine Similarity Engine<br/>dot(q, c) / (||q|| * ||c||)"]:::matchNode
+        WINNER(["Rank #1 Top Visual Match<br/>Highest Similarity (Threshold >= 70%)"]):::matchNode
 
         MEDIA_POOL --> CAND_EMB
         CAND_EMB --> MATCHER
@@ -251,7 +289,7 @@ flowchart TD
     subgraph P6 ["Phase 6: Blockchain Notarization & Memory Consolidation"]
         direction TB
         WEB3["Web3.py Client<br/>Sign ECDSA Notarization Tx"]:::chainNode
-        CONTRACT[("ContentRegistry.sol Smart Contract<br/>0xe25BfF359d31b3E2B3fF99692E6cE025f273BC21 (Sepolia)")]:::chainNode
+        CONTRACT[("ContentRegistry.sol Smart Contract<br/>0xe25BfF359d31b3E2B3fF99692E6cE025f273BC21")]:::chainNode
         DOSSIER[("Local Forensic Dossier & Memory<br/>data/results/ & data/memory/")]:::chainNode
 
         WEB3 -->|"registerRecord(hash, sourceId|ipfs://cid)"| CONTRACT
@@ -263,14 +301,14 @@ flowchart TD
         V_AUDIT["Audit Engine (facetrace verify)<br/>Recompute Canonical SHA-256 Hash"]:::verifyNode
         V_CHECK{"Integrity Check:<br/>Local == On-Chain?"}:::verifyNode
         V_PASS(["✓ CONTENT VERIFIED<br/>100% Authentic & Untampered"]):::passNode
-        V_FAIL(["✗ TAMPER DETECTED<br/>Content or Metadata Modified"]):::failNode
+        V_FAIL(["✗ TAMPER DETECTED<br/>Content or Metadata Altered"]):::failNode
 
         V_AUDIT --> V_CHECK
         V_CHECK -->|"Identical Hash"| V_PASS
         V_CHECK -->|"Hash Mismatch"| V_FAIL
     end
 
-    %% PIPELINE TRANSITIONS
+    %% Pipeline Inter-Phase Transitions
     EMB -->|"Query Vector"| V_LOOKUP
     V_LOOKUP -->|"Prior Leads & Handles"| SEARCH_ROUTER
     GEO -.->|"Scene Context"| SEARCH_ROUTER
@@ -283,101 +321,137 @@ flowchart TD
 
 ---
 
-## ⚡ Key Capabilities & Technical Innovations
+## Technical Capabilities & Engineering Deep Dive
 
-### 1. Biometric Precision & Multi-Face Landmark Alignment
-* Powered by **InsightFace** and **ArcFace** with the `buffalo_l` deep convolutional neural network pack.
-* Computes normalized 512-dimensional feature representations invariant to variable illumination, camera focal lengths, and pose angles up to $\pm 45^\circ$.
-* Incorporates automated face cropping with configurable safety margins (default 35%) for focused secondary search cascades.
+### 1. Biometric Precision & 512-d ArcFace Alignment
 
-### 2. Multi-Engine Visual Reverse Search Cascade & Zero-CAPTCHA Architecture
-* **Primary**: Google Lens reverse image discovery via **SerpAPI** for fast, mass-indexed visual appearance discovery.
-* **Autonomous Zero-CAPTCHA Fallback (`HeadlessLensProvider`)**:
-  - *The Bot Challenge*: Traditional browser automation uploading images directly via `lens.google.com` triggers Google's Enterprise reCAPTCHA challenge grid ("Select all fire hydrants") and `sorry/index` bot screens.
-  - *The Breakthrough*: FaceTrace bypasses browser upload triggers by dispatching raw image multipart payloads directly to Google's backend visual upload endpoint (`https://lens.google.com/v3/upload`).
-  - *Offscreen Stealth Rendering*: Google validates the image and issues an HTTP 303 redirect with a session search URL (`https://www.google.com/search?vsrid=...`). Playwright Chromium then navigates offscreen (`--window-position=-2400,-2400`) in full rendering mode without headless automation signatures, triggering **zero CAPTCHAs** and rendering complete visual results.
-  - *Embedded Data Stream Extraction*: Directly extracts and parses high-resolution image candidates, target post URLs, and source titles from Google's embedded JSON script arrays.
-* **Tertiary Fallback (`DirectYandexProvider`)**:
-  - If Google Lens is unreachable or rate-limited, FaceTrace seamlessly pivots to direct Yandex visual search with facial crops for deep cross-index coverage.
-* **Resilient Cascade**:
-  - `SerpAPI Google Lens` $\rightarrow$ *(on quota 429 / failure)* $\rightarrow$ `Headless Google Lens` $\rightarrow$ `Direct Yandex Images` $\rightarrow$ `Social Pivot Sweeping`.
-  - Zero manual intervention required; the pipeline automatically degrades gracefully and logs transparent notices.
+- **Backbone Architecture**: Uses **InsightFace** with the deep convolutional `buffalo_l` pack.
+- **Landmark Normalization**: Extracts 5-point facial landmarks (pupils, nose tip, mouth corners) and applies affine transformations to normalize face orientation.
+- **High-Dimension Representation**: Generates a 512-dimensional normalized unit vector ($\|\mathbf{v}\|_2 = 1$).
+- **Variance Tolerance**: Robust against illumination shifts, focal distortion, and head poses up to $\pm 45^\circ$ yaw/pitch.
+- **Automated Face Cropping**: Dynamically isolates detected faces with an expanded safety margin (default 35%) for secondary reverse search passes.
+
+<br/>
+
+### 2. Multi-Engine Visual Search & Zero-CAPTCHA Architecture
+
+FaceTrace implements a resilient multi-tier fallback cascade to ensure uninterrupted reverse visual discovery:
+
+```
+  SerpAPI Google Lens  ──(Quota/429)──►  HeadlessLensProvider  ──(Fail)──►  DirectYandexProvider
+```
+
+<br/>
+
+#### The Zero-CAPTCHA Breakthrough (`HeadlessLensProvider`)
+
+- **The Bot Wall**: Automating standard browser uploads directly through `lens.google.com` instantly triggers Enterprise Google reCAPTCHA grids and `sorry/index` rate-limit screens.
+- **Direct Backend Upload**: FaceTrace bypasses browser upload forms by submitting raw image multipart payloads directly to Google's backend visual ingestion endpoint:
+  ```text
+  POST https://lens.google.com/v3/upload
+  ```
+- **303 Redirect Capture**: Google processes the image and returns an HTTP 303 redirect with a session search URL (`https://www.google.com/search?vsrid=...`).
+- **Offscreen Stealth Navigation**: Playwright Chromium navigates offscreen (`--window-position=-2400,-2400`) to render the session URL in full graphical mode without automation signatures, triggering **zero CAPTCHAs** and rendering complete visual results.
+- **Direct Data Stream Extraction**: Candidate URLs, image links, and page titles are extracted directly from Google's embedded JSON script arrays without fragile DOM element scraping.
+
+#### Tertiary Fallback (`DirectYandexProvider`)
+
+If Google Lens endpoints are unreachable or severely throttled, FaceTrace automatically redirects cropped facial queries to Yandex Visual Search, ensuring multi-jurisdiction index coverage.
+
+<br/>
 
 ### 3. Dynamic OSINT Discovery & Contextual Dorking (`--context`)
-* **Dynamic Search**: Completely eliminates hardcoded seeds or static lists; all queries are constructed dynamically at runtime from target handles, discovered metadata, and visual features.
-* **Context Injection (`--context "<query>"`)**: Allows investigators to feed domain clues (e.g. `--context "web3 conference speaker"` or `--context "ai developer"`) to dynamically generate targeted Google and DuckDuckGo dorks.
-* **Social Graph Pivoting**: Concurrently extracts Open Graph metadata, creator handles, and associate tags across X/Twitter, Instagram, and LinkedIn.
 
-### 4. Deep Instagram & Video Reels Extraction
-* **Instagram Reel & Post Covers**: Dynamically extracts high-resolution cover frames from video posts and reels.
-* **Carousel Unpacking**: Automatically decomposes multi-photo carousel posts (`GraphSidecar`) into discrete slide candidates (`?img_index=N`) to identify tagged associates in background slides.
-* **Search Engine Redirect Unwrapping**: Resolves search wrapper redirects (`google.com/goto`, `google.com/url`) so reel shortcodes and video anchors are never lost.
-* **Silent Resilient DuckDuckGo Fallback**: Employs low-level C file descriptor redirection (`os.dup2`) and concurrency locks to eliminate Rust `rustls`/`h2` TLS disconnect warnings when querying DuckDuckGo.
+- **Zero Hardcoded Seeds**: All search queries are dynamically constructed at runtime from extracted handles, visual features, and candidate metadata.
+- **Context Injection (`--context "<query>"`)**: Investigators can supply investigative context clues (e.g. `--context "web3 speaker"` or `--context "ai researcher"`) to dynamically generate targeted Google and DuckDuckGo search dorks.
+- **Silent Resilient DuckDuckGo Fallback**: Uses low-level C file descriptor redirection (`os.dup2`) and concurrency locks to eliminate Rust `rustls`/`h2` TLS disconnect warnings during search fallback operations.
 
-### 5. Multi-Platform Handle Profiling (`--handle`)
-* Execute targeted sweeps across a suspected identity without manual URL scraping:
-  * `--handle USER --platform instagram`: Sweeps public Instagram posts and reels.
-  * `--handle USER --platform twitter`: Extracts media tweets from the user's timeline.
-  * `--handle USER`: Concurrently sweeps **all three** platforms (X/Twitter, Instagram, LinkedIn), merging all discovered media into the comparison pool.
+<br/>
 
-#### LinkedIn leg (`--handle` + LinkedIn)
-LinkedIn profiles do not use handles (they use name slugs like `gourish-julka-472a1632b`), so the `--handle` keyword is treated as a **name** for LinkedIn:
-* `GourishJulka` is split into `Gourish Julka` (camelCase aware) and run through `site:linkedin.com/in` and `site:linkedin.com/posts` dorks (SerpAPI primary when a key is configured, free DuckDuckGo fallback).
-* Discovered **public post pages** are rendered and every embedded photo (post images + member profile photos) enters the biometric pool.
-* Opt out of the LinkedIn leg with `--platform instagram` or `--platform twitter`; force only it with `--platform linkedin`.
-* Profile pages themselves are never accessed (authwall; see section 7).
+### 4. Deep Instagram Video Reels & Carousel Unpacking
 
-### 6. Identity Pivots: Cross-Platform Username Sweep (WhatsMyName)
-When visual reverse search yields no strong biometric match, FaceTrace pivots on **identity** instead of the face: it takes every candidate handle (recalled from subject memory, extracted from search-result titles/URLs, or passed via `--handle`) and checks it across hundreds of platforms using the community-maintained [WhatsMyName](https://github.com/WebBreacher/WhatsMyName) dataset (716 sites, vendored at `data/wmn/`). Discovered public profile images (avatars, profile `og:image`) are validated and fed into the same biometric matching pool as visual search results.
+- **Reel & Video Post Covers**: Automatically discovers and downloads high-resolution cover frame assets for Instagram Reels and video posts.
+- **Carousel Deconstruction**: Unpacks multi-image carousel posts (`GraphSidecar`) into individual slide images (`?img_index=N`), allowing identification of targets tagged in background slides.
+- **Search Wrapper Redirect Unwrapping**: Resolves search wrapper redirects (`google.com/goto`, `google.com/url`) to guarantee destination URLs and reel shortcodes remain intact.
 
-* **Strict evidence logic**: an account counts as found only on `e_code` + `e_string` dual evidence; soft-404s and login redirects are treated as misses.
-* **Tiered site selection**: by default only media-relevant categories (social, coding, tech, images, art, blog, music, video, gaming) without bot protection are checked, capped at 300 sites per handle. Set `PIVOT_EXHAUSTIVE=true` for the full list.
-* **Bounded runtime**: per-check timeout, global sweep budget, connection pooling, per-site error isolation; a single slow or failing site never aborts the sweep.
-* **False-positive guards**: handles are normalized and length-checked, generic names (admin, john, test, ...) are skipped, account hits per handle are capped, and the total candidates fed to the matcher are capped.
+<br/>
 
-#### Identity Pivot Configuration (env vars, defaults shown)
+### 5. Multi-Platform Identity Profiling (`--handle`)
 
-| Variable | Default | Purpose |
-|---|---|---|
-| `PIVOT_ENABLED` | `true` | Master switch for the username-sweep pivot |
-| `PIVOT_ENGINE` | `wmn` | Sweep engine (native WhatsMyName) |
-| `PIVOT_MAX_SITES` | `300` | Max sites checked per handle |
-| `PIVOT_TIMEOUT` | `8.0` | Per-site check timeout (seconds) |
-| `PIVOT_SWEEP_TIMEOUT` | `30.0` | Global sweep budget (seconds) |
-| `PIVOT_MAX_WORKERS` | `12` | Concurrent site checks |
-| `PIVOT_MAX_ACCOUNTS` | `25` | Max account hits per handle |
-| `PIVOT_MAX_CANDIDATES` | `50` | Max harvested images fed to the matcher |
-| `PIVOT_EXHAUSTIVE` | `false` | Check all non-NSFW sites instead of the Tier 1 subset |
-| `PIVOT_BROWSER_FALLBACK` | `false` | Allow Playwright chromium escalation for bot-walled sites |
+Inspects suspected creator accounts across platforms without manual scraping:
 
-**Attribution**: the vendored dataset is CC BY-SA 4.0, (c) 2015-2026 Micah Hoffman and WhatsMyName contributors; see [`data/wmn/ATTRIBUTION.md`](data/wmn/ATTRIBUTION.md). Public data only: the sweep never accesses private or authenticated content.
+- **Targeted Sweeps**:
+  ```bash
+  python -m app.main --image ./data/input/test_face_11.jpg --handle supreme__sahil --platform instagram
+  python -m app.main --image ./data/input/test_face_11.jpg --handle supreme__sahil --platform twitter
+  ```
+- **Concurrent Tri-Platform Sweeps**:
+  ```bash
+  python -m app.main --image ./data/input/test_face_11.jpg --handle supreme__sahil
+  ```
+  Concurrently sweeps **Instagram, X/Twitter, and LinkedIn**, pooling all extracted media into candidate biometric comparisons.
+
+<br/>
+
+### 6. Cross-Platform Username Sweeps (WhatsMyName)
+
+When reverse visual search yields no strong matches, FaceTrace pivots to **identity search**:
+
+- **716-Site Dataset**: Evaluates target handles against the community-curated [WhatsMyName](https://github.com/WebBreacher/WhatsMyName) database (vendored at `data/wmn/`, CC BY-SA 4.0).
+- **Strict Evidence Verification**: An account hit requires dual confirmation (`e_code` HTTP status + `e_string` response validation). Soft-404s and login redirects are classified as misses.
+- **Candidate Harvesting**: Discovered public avatar and `og:image` URLs are harvested and passed into the biometric matcher.
+
+<br/>
+
+#### Identity Pivot Configuration Reference
+
+| Environment Variable | Default | Description |
+| :--- | :--- | :--- |
+| `PIVOT_ENABLED` | `true` | Enables/disables username-sweep pivoting |
+| `PIVOT_ENGINE` | `wmn` | Pivoting engine (`wmn` native WhatsMyName) |
+| `PIVOT_MAX_SITES` | `300` | Maximum sites evaluated per handle |
+| `PIVOT_TIMEOUT` | `8.0` | Per-site HTTP timeout (seconds) |
+| `PIVOT_SWEEP_TIMEOUT` | `30.0` | Global sweep execution budget (seconds) |
+| `PIVOT_MAX_WORKERS` | `12` | Concurrent check worker threads |
+| `PIVOT_MAX_ACCOUNTS` | `25` | Maximum account matches stored per handle |
+| `PIVOT_MAX_CANDIDATES` | `50` | Maximum harvested images fed to matcher |
+| `PIVOT_EXHAUSTIVE` | `false` | Check all non-NSFW sites (bypasses Tier 1 filter) |
+| `PIVOT_BROWSER_FALLBACK` | `false` | Enables Playwright browser escalation for bot-walled sites |
+
+<br/>
 
 ### 7. LinkedIn Public Post Harvesting
-LinkedIn is invisible to exact-username sweeps (profiles use name-derived slugs like `gourish-julka-472a1632b`, not handles) and to reverse image engines (post photos are not indexed). But **public post pages** (`linkedin.com/posts/...`) are guest-accessible and expose:
-* the post's embedded images (feedshare photos) via `og:image` and the page DOM,
-* member profile photos (displayphoto URLs) present on the page,
-* associate profile slugs (`/in/kingsahil`, `/in/khannasparsh`, ...) for cross-platform identity pivots.
 
-FaceTrace harvests all of this in `--target` mode (`TargetURLProvider` detects `linkedin.com/posts/` URLs, plain requests with browser escalation as fallback), and the associate-forensics stage renders discovered post URLs to pull every embedded photo into the biometric pool.
+LinkedIn profiles rely on name slugs rather than standard handles and are shielded behind authwalls (`HTTP 999`). However, **public post pages** (`linkedin.com/posts/...`) are guest-visible:
+
+- **CamelCase Name Resolution**: Splits handles (e.g. `GourishJulka` $\rightarrow$ `Gourish Julka`) and generates public dorks (`site:linkedin.com/posts`).
+- **Post Image & Avatar Acquisition**: Extracts embedded post imagery (`og:image`), DOM feedshare photos, and author display photos.
+- **Associate Tag Pivots**: Discovers mentioned member profile slugs (`/in/kingsahil`, `/in/khannasparsh`) to seed further cross-platform queries.
 
 > [!IMPORTANT]
-> **Profile pages are intentionally out of scope.** `linkedin.com/in/...` serves HTTP 999 to scripts and redirects browsers to the authwall. The pipeline never authenticates, bypasses the login wall, or accesses private content: only guest-visible post pages are used.
+> **Strict Public-Only Scope**: FaceTrace never attempts to bypass login screens or access private profile pages. Only guest-visible public post content is harvested.
 
-### 8. Multimodal Scene & GEOINT Estimation
-* **Environmental Scene Analysis (`app/geo.py`)**: Analyzes background textures, outdoor lighting, architectural structures, and landmark features to aid in physical geolocation hypothesis generation.
+<br/>
+
+### 8. Multimodal Scene Analysis & GEOINT
+
+Implemented in `app/geo.py`, this module analyzes query images for environmental features:
+- Scene classification (indoor vs. outdoor, architectural styles, rural vs. urban terrain).
+- Lighting conditions and sun elevation hints.
+- Contextual tags to assist human analysts in formulating geolocation hypotheses.
 
 ---
 
-## ⛓️ Which Blockchain We Used & Why
+## Blockchain Architecture: Ethereum Sepolia
 
-### Blockchain Network Selected: **Ethereum Sepolia Testnet**
+### Network Selected: **Ethereum Sepolia Testnet** (Chain ID: `11155111`)
 
-For the immutable notarization and verification layer, FaceTrace uses the **Ethereum Sepolia Testnet** (Chain ID: `11155111`), the primary proof-of-stake public testnet supported by the Ethereum Foundation.
+FaceTrace anchors forensic records to **Ethereum Sepolia**, the primary Proof-of-Stake public testnet supported by the Ethereum Foundation.
 
 ```
                     ┌────────────────────────┐
-                    │ ContentRegistry.sol    │
-                    │ (Solidity 0.8.19)      │
+                    │  ContentRegistry.sol   │
+                    │   (Solidity 0.8.19)    │
                     └───────────┬────────────┘
                                 │
           ┌─────────────────────┴─────────────────────┐
@@ -390,33 +464,33 @@ For the immutable notarization and verification layer, FaceTrace uses the **Ethe
 └───────────────────────────┘               └───────────────────────────┘
 ```
 
-### Why Ethereum Sepolia Was Chosen:
+<br/>
 
-1. **Global Decentralization & Universal Auditability**:
-   - Anyone anywhere can independently verify a recorded fingerprint using public block explorers ([Sepolia Etherscan](https://sepolia.etherscan.io)) or any public Ethereum JSON-RPC endpoint.
-   - Auditors do not need to install local chain nodes (like Ganache or Anvil) to verify our records.
+### Why Ethereum Sepolia?
 
-2. **Production-Grade EVM Compatibility**:
-   - Implements standard Solidity smart contract architecture, cryptographic ECDSA signatures, nonce management, dynamic gas estimation, and immutable event emission.
-   - Code written and deployed for Sepolia can deploy onto Ethereum Mainnet, Arbitrum, Optimism, Base, or Polygon with zero code modifications.
+1. **Decentralized Public Auditability**:
+   Anyone worldwide can verify an evidence fingerprint using public block explorers ([Sepolia Etherscan](https://sepolia.etherscan.io)) or standard Ethereum JSON-RPC nodes without installing local test nodes.
+2. **Production-Grade EVM Standard**:
+   Implements standard Solidity contracts, ECDSA signatures, dynamic gas estimation, and immutable event logs. Code is 100% portable to Ethereum Mainnet, Arbitrum, Optimism, Base, or Polygon.
+3. **Cryptographic Proof of Existence**:
+   Once mined into a Sepolia block, records cannot be altered, backdated, or censored by any party—including the original submitter.
+4. **Zero Researcher Friction**:
+   Enables reproducible forensic audits and open-source validation without capital requirements.
 
-3. **Permanent Immutability & Anti-Tampering Guarantee**:
-   - Once a content hash is mined into a Sepolia block, it is cryptographically sealed by Ethereum's proof-of-stake consensus validators. It cannot be altered, censored, or backdated by anyone—including the original submitter.
-
-4. **Zero Financial Friction for Researchers**:
-   - Sepolia operates identically to Ethereum Mainnet without requiring real capital, enabling reproducible audits, forensic validation, and open-source testing without financial barriers.
-
----
+<br/>
 
 ### Smart Contract Deployment Details
 
-* **Smart Contract Source**: [`contracts/ContentRegistry.sol`](contracts/ContentRegistry.sol)
-* **Solidity Version**: `0.8.19`
-* **Deployed Contract Address**: [`0xe25BfF359d31b3E2B3fF99692E6cE025f273BC21`](https://sepolia.etherscan.io/address/0xe25BfF359d31b3E2B3fF99692E6cE025f273BC21)
-* **Contract Creation Transaction**: [`0xc96cff185e7d482fc64a76a2fa2a4a907fa0dcd2bc0b760d76447d9789c90eb5`](https://sepolia.etherscan.io/tx/0xc96cff185e7d482fc64a76a2fa2a4a907fa0dcd2bc0b760d76447d9789c90eb5)
-* **Live Evidence Registration Tx**: [`0x5973722a9fe742e8690581794dc77a47328ad980bfe39bdd3e31f2646d19cd35`](https://sepolia.etherscan.io/tx/0x5973722a9fe742e8690581794dc77a47328ad980bfe39bdd3e31f2646d19cd35) (Block: `11631794`)
+- **Contract Source**: [`contracts/ContentRegistry.sol`](contracts/ContentRegistry.sol)
+- **Solidity Compiler**: `v0.8.19`
+- **Contract Address**: [`0xe25BfF359d31b3E2B3fF99692E6cE025f273BC21`](https://sepolia.etherscan.io/address/0xe25BfF359d31b3E2B3fF99692E6cE025f273BC21)
+- **Contract Creation Tx**: [`0xc96cff185e7d482fc64a76a2fa2a4a907fa0dcd2bc0b760d76447d9789c90eb5`](https://sepolia.etherscan.io/tx/0xc96cff185e7d482fc64a76a2fa2a4a907fa0dcd2bc0b760d76447d9789c90eb5)
+- **Live Evidence Notarization Tx**: [`0x5973722a9fe742e8690581794dc77a47328ad980bfe39bdd3e31f2646d19cd35`](https://sepolia.etherscan.io/tx/0x5973722a9fe742e8690581794dc77a47328ad980bfe39bdd3e31f2646d19cd35) *(Block `11631794`)*
 
-#### Smart Contract Code (`ContentRegistry.sol`):
+<br/>
+
+#### Smart Contract Source Code (`ContentRegistry.sol`)
+
 ```solidity
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
@@ -457,51 +531,57 @@ contract ContentRegistry {
 }
 ```
 
-### On-Chain Privacy Guarantee
+<br/>
+
 > [!IMPORTANT]
-> **Zero biometric data or personal identifying information is stored on-chain.**
-> The smart contract only records:
-> 1. `bytes32 contentHash`: The irreversible 32-byte SHA-256 fingerprint of the canonical public post.
-> 2. `uint256 timestamp`: The Ethereum block timestamp when the notarization was mined.
-> 3. `string sourceId`: Platform label + IPFS CID URI (e.g. `www.instagram.com|ipfs://bafkrei...`).
-> 
-> Raw images, face embeddings, landmarks, and private identities remain strictly local or in decentralized content-addressed storage.
+> **Strict On-Chain Privacy Guarantee**:
+> **Zero biometric embeddings, face coordinates, or personal data are ever recorded on-chain.**
+> The smart contract stores only:
+> 1. `bytes32 contentHash`: Irreversible 32-byte SHA-256 digest of the canonical public post.
+> 2. `uint256 timestamp`: Ethereum block timestamp when the notarization was confirmed.
+> 3. `string sourceId`: Platform identifier + IPFS CID URI (e.g. `www.instagram.com|ipfs://bafkrei...`).
+>
+> All biometric vectors and private identity data remain exclusively local or within decentralized content-addressed storage.
 
 ---
 
-## 🚀 How to Run It (Setup & Execution Guide)
+## Quickstart & Setup Guide
 
 ### 1. Prerequisites
-- **Python 3.10+** (3.11, 3.12, 3.14 tested)
-- **Git**
-- **NVIDIA GPU + driver (optional, for acceleration)**: any CUDA-12/13 capable driver. The pipeline auto-detects GPU support and falls back to CPU seamlessly.
-- Optional: a SerpAPI key (free tier works), and a funded Sepolia wallet for notarization.
 
-### 2. Clone the Repository
+- **Python 3.10+** (Tested on Python 3.10, 3.11, 3.12, and 3.14)
+- **Git**
+- **NVIDIA GPU + Driver (Optional)**: CUDA 12/13 compatible driver. Pipeline auto-detects GPU and falls back to CPU automatically.
+- **Optional Credentials**: SerpAPI key (free tier available) and a funded Sepolia testnet wallet for live notarizations.
+
+<br/>
+
+### 2. Installation & Virtual Environment
+
 ```bash
+# 1. Clone repository
 git clone https://github.com/KingSahil/social-detective.git
 cd social-detective
-```
 
-### 3. Setup Virtual Environment & Install Dependencies
-```bash
-# Create virtual environment
+# 2. Create virtual environment
 python -m venv .venv
 
-# Activate on Windows PowerShell:
+# 3. Activate virtual environment
+# Windows PowerShell:
 .\.venv\Scripts\Activate.ps1
-
-# Activate on Linux / macOS:
+# Linux / macOS:
 source .venv/bin/activate
 
-# Upgrade pip & install requirements
+# 4. Upgrade packaging tools & install dependencies
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-#### GPU Acceleration (Linux & Windows + NVIDIA, optional but recommended)
+<br/>
 
-`insightface` pulls in CPU `onnxruntime` as a hard dependency, and the two builds overwrite the same module, so the GPU build should be swapped in as an explicit final step:
+### 3. GPU Acceleration (NVIDIA CUDA, Optional)
+
+InsightFace installs CPU `onnxruntime` by default. To enable GPU acceleration, install `onnxruntime-gpu`:
 
 **Linux:**
 ```bash
@@ -516,43 +596,39 @@ pip install onnxruntime-gpu nvidia-cublas nvidia-cudnn-cu13 nvidia-cuda-runtime
 ```
 
 > [!NOTE]
-> On Windows, `app/face.py` automatically discovers and mounts pip-installed NVIDIA DLL directories into the process PATH and DLL search order dynamically—no manual CUDA Toolkit or environment variable editing required.
+> On Windows, `app/face.py` dynamically locates and mounts pip-installed NVIDIA DLL paths into the process search order at runtime. No manual CUDA Toolkit installation or system PATH modifications are required.
 
-Verify GPU providers:
+Verify available execution providers:
 ```bash
 python -c "import onnxruntime; print(onnxruntime.get_available_providers())"
-# GPU build output: [..., 'CUDAExecutionProvider', 'CPUExecutionProvider']
+# GPU Output: ['TensorrtExecutionProvider', 'CUDAExecutionProvider', 'CPUExecutionProvider']
 ```
 
-To force CPU mode (for benchmarking):
+#### Headless Browser Setup (Optional)
+The `HeadlessLensProvider` auto-detects existing system Chrome/Chromium installations. Install Playwright Chromium only if no system browser is found:
 ```bash
-FACE_DEVICE=cpu python -m app.main --image ./data/input/test_face_10.jpg
-```
-
-#### Browser for the Free Headless Google Lens Fallback
-The `HeadlessLensProvider` auto-detects your system Chrome/Chromium. Only install Playwright's own browser if you have no system Chrome:
-```bash
-playwright install chromium   # optional, not needed when a system browser exists
+playwright install chromium
 ```
 
 > [!NOTE]
-> On first execution, InsightFace automatically downloads the `buffalo_l` pre-trained model pack (~300MB) to `~/.insightface/models/`. No manual download is required.
+> On initial launch, InsightFace automatically downloads the pre-trained `buffalo_l` pack (~300MB) to `~/.insightface/models/`.
 
----
+<br/>
 
-### 4. Environment Variables Configuration
-Copy the template configuration file:
+### 4. Environment Configuration
+
+Copy the sample environment template:
 ```bash
 cp .env.example .env
 ```
 
-Populate `.env` with your credentials:
+Populate `.env` with your settings:
 ```ini
-# SerpAPI Key for Google Lens (optional - free fallback activates if omitted)
+# SerpAPI Key for Google Lens (optional - free headless fallback activates if omitted)
 SERPAPI_KEY=your_serpapi_key_here
 
-# Ethereum Sepolia RPC Endpoint (Infura, Alchemy, or a free public node)
-# Free public node (no account needed): https://ethereum-sepolia-rpc.publicnode.com
+# Ethereum Sepolia RPC Endpoint (Infura, Alchemy, or free public RPC)
+# Free public node: https://ethereum-sepolia-rpc.publicnode.com
 RPC_URL=https://sepolia.infura.io/v3/YOUR_INFURA_PROJECT_ID
 
 # Ethereum Account Private Key (Used to sign notarization transactions)
@@ -562,42 +638,50 @@ PRIVATE_KEY=your_wallet_private_key_without_0x
 CONTRACT_ADDRESS=0xe25BfF359d31b3E2B3fF99692E6cE025f273BC21
 ```
 
----
+<br/>
 
-### 5. Running the Pipeline End-to-End
+### 5. Execution Workflows
 
-#### Option A: Autonomous Reverse Visual Web Search (Default)
-Takes a face image, automatically queries Google Lens via SerpAPI, and if quota is exhausted (HTTP 429), automatically activates the **Zero-CAPTCHA Free Visual Search Fallback** (`HeadlessLensProvider` $\rightarrow$ `DirectYandexProvider`), matches candidate faces, computes SHA-256, notarizes on Ethereum Sepolia, and verifies on-chain:
+#### Option A: Autonomous Reverse Visual Search (Default)
+Queries Google Lens via SerpAPI. If quota is exhausted (HTTP 429), automatically activates the Zero-CAPTCHA Headless Lens Provider and Yandex fallback, extracts matches, notarizes on Sepolia, and verifies on-chain:
 ```bash
 python -m app.main --image ./data/input/test_face_10.jpg
 ```
 
-#### Option B: Dynamic Context Dorking (`--context`)
-Provide context keywords to dynamically generate targeted search dorks across social networks and conference archives:
+<br/>
+
+#### Option B: Contextual Dorking (`--context`)
+Supplies investigative context clues to dynamically generate targeted search dorks:
 ```bash
 python -m app.main --image ./data/input/test_face_11.jpg --context "developer conference speaker"
 ```
 
+<br/>
+
 #### Option C: Sync Decentralized Web3 Memory (`--sync-web3`)
-Synchronize your local identity knowledge graph with on-chain Ethereum Sepolia events and decentralized IPFS payloads:
+Synchronizes your local identity knowledge graph with on-chain Ethereum Sepolia events and IPFS payloads:
 ```bash
 python -m app.main --sync-web3
 ```
 
+<br/>
+
 #### Option D: Targeted Social Post & Reel Verification (`--target`)
-Directly verifies a face against a specific Instagram reel, multi-photo carousel post, X/Twitter post, or news article:
+Directly verifies a face against a specific Instagram reel, carousel, or X/Twitter status:
 ```bash
 # Verify against an Instagram Reel or Carousel
 python -m app.main --image ./data/input/test_face_11.jpg --target https://www.instagram.com/p/DbvdVHXOLSG/
 
-# Verify against an X/Twitter Status
+# Verify against an X/Twitter Post
 python -m app.main --image ./data/input/test_face_4.png --target https://x.com/supreme__sahil/status/2087906598962524208
 ```
 
+<br/>
+
 #### Option E: Multi-Platform Handle Profiling (`--handle`)
-Searches a creator's public profile and timeline across Instagram and X/Twitter:
+Searches a creator's public profile and timeline across Instagram, X/Twitter, and LinkedIn:
 ```bash
-# Concurrently search both Instagram and X/Twitter
+# Concurrently search Instagram, X/Twitter, and LinkedIn
 python -m app.main --image ./data/input/test_face_11.jpg --handle supreme__sahil
 
 # Restrict sweep specifically to Instagram
@@ -607,7 +691,9 @@ python -m app.main --image ./data/input/test_face_11.jpg --handle supreme__sahil
 python -m app.main --image ./data/input/test_face_11.jpg --handle supreme__sahil --platform twitter
 ```
 
-#### Option F: Explicit Engine Selection & Custom Threshold
+<br/>
+
+#### Option F: Engine Selection & Custom Threshold
 ```bash
 # Set similarity threshold to 80% (default: 0.70)
 python -m app.main --image ./data/input/test_face_12.jpg --threshold 0.80
@@ -619,26 +705,41 @@ python -m app.main --image ./data/input/test_face_11.jpg --engine lens
 python -m app.main --image ./data/input/test_face_11.jpg --engine yandex
 ```
 
-#### Option G: Migrate Existing Results to Knowledge Graph
-If you have historic forensic records in `data/results/`, you can ingest them into the knowledge graph at any time:
+<br/>
+
+#### Option G: Ingest Historical Records into Knowledge Graph
+Migrates previous forensic dossiers in `data/results/` into the local knowledge graph:
 ```bash
 python -m app.memory.migrate
 ```
 
+<br/>
+
+#### Option H: Group Photos & Multi-Face Targeting (`--face-index`)
+When an input image contains multiple faces (group photos, stage pictures, selfies), FaceTrace automatically detects and indexes all faces, defaulting to the primary (largest) face, or allows targeting any person by index:
+```bash
+# Auto-detects all faces and defaults to primary/largest face #0
+python -m app.main --image ./data/input/test_face_23.jpg
+
+# Explicitly target face #1 in a group photo
+python -m app.main --image ./data/input/test_face_23.jpg --face-index 1
+```
+
 ---
 
-## 🛡️ Independent Verification & Tamper Detection
+## Independent Verification & Tamper Detection
 
 ### 1. Re-Verifying a Recorded Dossier Against Ethereum Sepolia
 
-Once a post is notarized, FaceTrace saves a full forensic JSON record in `data/results/`. Anyone can independently audit this record at any future date:
+Once evidence is notarized, FaceTrace stores the complete forensic JSON dossier in `data/results/`. Anyone can independently audit this record at any future date:
 
 ```bash
 python -m app.main verify --record ./data/results/20260904_064037_record.json
 ```
 
-**Expected Terminal Output (Verified):**
-```
+**Expected Terminal Output (Verified Authentic):**
+
+```text
 ============================================================
            VERIFICATION
 ============================================================
@@ -649,7 +750,7 @@ python -m app.main verify --record ./data/results/20260904_064037_record.json
   Original hash (registered):
   ad7b1828546b2e5e7465c7b39cfcda99b47a0bce997666666698d230a82fb92b
 
-  On-chain:  ✓ Hash found
+  On-chain:   ✓ Hash found
   Registered: 2026-09-04T06:40:36+00:00
 
   ✓ CONTENT VERIFIED
@@ -658,17 +759,19 @@ python -m app.main verify --record ./data/results/20260904_064037_record.json
 ============================================================
 ```
 
----
+<br/>
 
 ### 2. Live Interactive Tamper Detection Demonstration
 
-FaceTrace guarantees that if any actor attempts to modify post captions, substitute images, or falsify metadata, the cryptographic integrity check fails immediately.
+FaceTrace guarantees that if any party modifies a post caption, replaces an image, or alters metadata, the cryptographic integrity check fails instantly.
 
-#### Step 1: Open the record JSON
-Open any record in `data/results/` (e.g. `data/results/20260904_064037_record.json`).
+<br/>
 
-#### Step 2: Introduce a modification
-Alter a single word in `"text"`, or change a single character in `"image_hash"`. For example, change:
+#### Step 1: Open a forensic record JSON
+Open any dossier in `data/results/` (e.g. `data/results/20260904_064037_record.json`).
+
+#### Step 2: Introduce a single-character modification
+Change a single character in `"text"`. For example, change:
 ```json
 "text": "My custom implementation of snapchat lens studio using machine learning Lol"
 ```
@@ -682,8 +785,9 @@ to:
 python -m app.main verify --record ./data/results/20260904_064037_record.json
 ```
 
-**Output (Tamper Detected):**
-```
+**Expected Terminal Output (Tamper Detected):**
+
+```text
 ============================================================
            VERIFICATION
 ============================================================
@@ -694,7 +798,7 @@ python -m app.main verify --record ./data/results/20260904_064037_record.json
   Original hash (registered):
   ad7b1828546b2e5e7465c7b39cfcda99b47a0bce997666666698d230a82fb92b
 
-  On-chain:  ✓ Hash found
+  On-chain:   ✓ Hash found
 
   ✗ TAMPER DETECTED
   TAMPER DETECTED — content has been modified since registration
@@ -704,74 +808,66 @@ python -m app.main verify --record ./data/results/20260904_064037_record.json
 
 ---
 
-## ⚠️ Known Limitations
+## Known Limitations & Engineering Boundaries
 
-In the interest of full technical transparency and forensic rigor, the following engineering limitations are documented:
+In the interest of forensic transparency, the following technical constraints are documented:
 
-### 1. Platform Rate Limits & Anti-Bot Mitigations
-- **Search Engines (Google Lens, Yandex)** and **Social Media Platforms (Instagram, X/Twitter)** employ anti-scraping systems, including Cloudflare Turnstile, Google reCAPTCHA v2/v3, and HTTP 429 rate limits.
-- **Mitigation in FaceTrace**: Multi-tiered fallbacks (SerpAPI $\rightarrow$ Playwright stealth browser $\rightarrow$ Direct Yandex $\rightarrow$ DuckDuckGo). However, rapid continuous queries from a single residential IP address without proxy rotation may encounter temporary cooldowns.
+1. **Platform Rate Limits & Anti-Bot Mitigations**:
+   - Search engines and social platforms enforce rate limits and bot challenges (Cloudflare Turnstile, reCAPTCHA v2/v3, HTTP 429).
+   - *FaceTrace Mitigation*: Multi-tier fallbacks (SerpAPI $\rightarrow$ Headless stealth browser $\rightarrow$ Direct Yandex $\rightarrow$ DuckDuckGo). Rapid sustained queries from a single residential IP may encounter temporary cooldowns without proxy rotation.
 
-### 2. Walled Gardens & Private Social Media Content
-- FaceTrace can only index **publicly accessible posts, public reels, open profiles, and indexed web pages**.
-- Content housed within private accounts, restricted groups, or ephemeral formats like 24-hour Stories cannot be indexed without authenticated session cookies.
+2. **Walled Gardens & Authenticated Content**:
+   - FaceTrace indexes only **publicly accessible posts, reels, and profiles**.
+   - Content behind private profiles, restricted groups, or ephemeral formats (24h Stories) cannot be indexed without active user authentication cookies.
 
-### 3. Biometric Variance Under Extreme Pose & Occlusion
-- The `buffalo_l` ArcFace model provides high discrimination for facial angles up to $\pm 45^\circ$ yaw and pitch.
-- Extreme profile views ($>60^\circ$), heavy occlusions (dark sunglasses, medical masks), severe motion blur, or low-resolution image thumbnails ($<60\times 60$ pixels) can reduce landmark confidence. Running with `--threshold 0.50` or using a tighter portrait crop is recommended in challenging conditions.
+3. **Biometric Variance Under Extreme Pose & Occlusion**:
+   - The `buffalo_l` ArcFace model reliably matches faces up to $\pm 45^\circ$ yaw and pitch.
+   - Extreme angles ($>60^\circ$), heavy occlusions (dark glasses, medical masks), severe motion blur, or low-resolution crops ($<60\times 60$ px) reduce landmark detection confidence. Using `--threshold 0.50` or a tighter crop is recommended for challenging inputs.
 
-### 4. Blockchain Testnet Block Confirmation Latency
-- Public testnets like **Ethereum Sepolia** rely on proof-of-stake validators with average block times of ~12 seconds.
-- Free-tier RPC endpoints occasionally experience congestion during high testnet activity. FaceTrace handles this with dynamic gas estimation (+25% buffer) and receipt polling up to 120 seconds.
+4. **Blockchain Testnet Latency**:
+   - Ethereum Sepolia has an average block time of ~12 seconds. Free RPC providers may experience temporary congestion. FaceTrace incorporates dynamic gas buffers (+25%) and polls transaction receipts for up to 120 seconds.
 
-### 5. Probabilistic Biometrics vs Cryptographic Immutability
-- **Facial similarity is a statistical score, not absolute legal proof of human identity.** A 97.5% ArcFace cosine similarity score confirms high visual and geometrical resemblance, but cannot account for identical twins or high-fidelity 3D deepfakes.
-- Blockchain notarization proves **content authenticity and timestamped existence**, certifying that the exact digital payload existed in that specific format at that block height.
-
----
-
-## 🎬 Demonstration & Audit Guide
-
-Follow this guide to demonstrate or audit the entire end-to-end pipeline:
-
-### 1. Query Portrait Intake
-Select an input portrait image (e.g. `data/input/test_face_11.jpg` or any image in `data/input/`).
-
-### 2. Execute Full Pipeline Command
-Run autonomous discovery or targeted verification:
-```bash
-python -m app.main --image ./data/input/test_face_11.jpg --target https://www.instagram.com/p/DbvdVHXOLSG/
-```
-*Or full autonomous reverse discovery*:
-```bash
-python -m app.main --image ./data/input/test_face_11.jpg
-```
-
-### 3. Observe Pipeline Stages in Terminal
-- `[1/7] FACE DETECTION`: Face detected & 512-d ArcFace vector generated.
-- `[2/7] TARGET MEDIA DISCOVERY`: Candidate media extraction across engines.
-- `[3/7] FACE MATCHING`: Biometric similarity score calculated (e.g. `97.5%`).
-- `[4/7] CONTENT RETRIEVAL`: Post metadata, caption text, and high-res media bytes downloaded.
-- `[5/7] FINGERPRINT`: Deterministic canonical serialization, IPFS CIDv1, and SHA-256 hash created.
-- `[6/7] BLOCKCHAIN`: Transaction confirmed on Ethereum Sepolia, displaying transaction hash, block number, and IPFS CID.
-- `[7/7] VERIFICATION`: Instant `✓ CONTENT VERIFIED` confirmation.
-
-### 4. Demonstrate Independent On-Chain Verification
-Run:
-```bash
-python -m app.main verify --record ./data/results/20260904_064037_record.json
-```
-The terminal verifies the local hash against the smart contract and outputs `✓ CONTENT VERIFIED`.
-
-### 5. Demonstrate Tamper Detection
-Edit a single character in the `.json` file and re-run verification to see `✗ TAMPER DETECTED`.
-
-### 6. Verify Transaction on Sepolia Etherscan
-Inspect the transaction on [Sepolia Etherscan](https://sepolia.etherscan.io/address/0xe25BfF359d31b3E2B3fF99692E6cE025f273BC21) to audit the immutable event logs.
+5. **Probabilistic Biometrics vs. Cryptographic Immutability**:
+   - **Facial similarity is a statistical score, not legal identity proof.** A 97.5% ArcFace score confirms strong geometric similarity, but cannot differentiate identical twins or advanced 3D masks.
+   - Blockchain notarization proves **content authenticity and timestamped existence**, certifying that the exact digital payload existed in that format at that block height.
 
 ---
 
-## 📁 Repository Structure
+## Demonstration & Audit Walkthrough
+
+Follow these steps to conduct an end-to-end demonstration or forensic audit:
+
+1. **Select Query Image**:
+   Choose an input portrait (e.g. `data/input/test_face_11.jpg`).
+
+2. **Execute Pipeline**:
+   ```bash
+   python -m app.main --image ./data/input/test_face_11.jpg --target https://www.instagram.com/p/DbvdVHXOLSG/
+   ```
+
+3. **Observe Terminal Stages**:
+   - `[1/7] FACE DETECTION`: Face detected & 512-d ArcFace vector extracted.
+   - `[2/7] TARGET MEDIA DISCOVERY`: Candidate media retrieved.
+   - `[3/7] FACE MATCHING`: Biometric similarity calculated (e.g. `97.5%`).
+   - `[4/7] CONTENT RETRIEVAL`: Post caption, author, and media bytes captured.
+   - `[5/7] FINGERPRINT`: Canonical JSON formatted, SHA-256 hash and IPFS CIDv1 generated.
+   - `[6/7] BLOCKCHAIN`: Transaction confirmed on Sepolia with tx hash and block number.
+   - `[7/7] VERIFICATION`: Instant `✓ CONTENT VERIFIED` confirmation.
+
+4. **Verify On-Chain Record**:
+   ```bash
+   python -m app.main verify --record ./data/results/20260904_064037_record.json
+   ```
+
+5. **Test Tamper Detection**:
+   Modify a character in the saved `.json` record and re-run to confirm `✗ TAMPER DETECTED`.
+
+6. **Audit on Sepolia Etherscan**:
+   Inspect the contract address on [Sepolia Etherscan](https://sepolia.etherscan.io/address/0xe25BfF359d31b3E2B3fF99692E6cE025f273BC21) to audit the immutable event logs.
+
+---
+
+## Repository Structure
 
 ```
 social-detective/
@@ -780,7 +876,7 @@ social-detective/
 │   ├── main.py              # CLI entry point and 7-phase pipeline orchestrator
 │   ├── config.py            # Environment configuration and validation
 │   ├── face.py              # InsightFace ArcFace detection and 512-d embedding engine
-│   ├── search.py            # Search providers (Lens, Stealth Playwright, Yandex, IG, X)
+│   ├── search.py            # Search providers (SerpAPI, Headless Lens, Yandex, IG, X)
 │   ├── matcher.py           # Cosine similarity ranking and candidate matching
 │   ├── content.py           # Content retrieval, author capture, and canonicalization
 │   ├── hashing.py           # Cryptographic SHA-256 fingerprint generator
@@ -800,25 +896,26 @@ social-detective/
 │   ├── ContentRegistry.sol  # Solidity 0.8.19 smart contract source
 │   └── ContentRegistry.json # Compiled smart contract ABI
 ├── scripts/
-│   └── deploy_contract.py   # Compilation and deployment automation script
+│   └── deploy_contract.py   # Smart contract compilation and deployment script
 ├── data/
 │   ├── input/               # Query face portrait images (e.g., test_face_11.jpg)
 │   ├── results/             # Forensic JSON dossiers and embeddings cache
 │   ├── wmn/                 # WhatsMyName dataset (716 sites) & attribution
-│   └── memory/              # Local decentralized knowledge graph and IPFS cache
+│   └── memory/              # Decentralized knowledge graph and IPFS cache
 │       ├── knowledge_graph.json # Synced entity graph & biometric vectors
-│       └── ipfs_cache/      # Cached decentralized payloads
+│       └── ipfs_cache/      # Cached decentralized IPFS payloads
 ├── tests/
-│   ├── test_face.py         # Unit tests for face detection and embedding extraction
-│   ├── test_search.py       # Unit tests for multi-platform search and fallbacks
-│   ├── test_matching.py     # Unit tests for cosine similarity and ranking
-│   ├── test_hashing.py      # Unit tests for canonicalization and hashing
 │   ├── test_blockchain.py   # Unit tests for ABI loading and smart contract helpers
+│   ├── test_face.py         # Unit tests for face detection and embedding extraction
+│   ├── test_geo.py          # Unit tests for multimodal scene and GEOINT analysis
 │   ├── test_harvest.py      # Unit tests for avatar & OG image harvesting
+│   ├── test_hashing.py      # Unit tests for canonicalization and hashing
 │   ├── test_identity.py     # Unit tests for WhatsMyName username sweeps
 │   ├── test_linkedin.py     # Unit tests for LinkedIn post parsing
+│   ├── test_matching.py     # Unit tests for cosine similarity and ranking
 │   ├── test_memory_web3.py  # Unit tests for IPFS CIDv1 and Web3 memory syncer
-│   └── test_ocr.py          # Unit tests for text and visual extraction helpers
+│   ├── test_ocr.py          # Unit tests for text and visual extraction helpers
+│   └── test_search.py       # Unit tests for multi-platform search and fallbacks
 ├── requirements.txt         # Production dependencies
 ├── pyproject.toml           # Packaging and tool configurations
 ├── .env.example             # Environment configuration template
@@ -827,78 +924,94 @@ social-detective/
 
 ---
 
-## 🧪 Testing & Validation
+## Testing & Performance Validation
 
-FaceTrace includes a comprehensive unit test suite covering all modules without requiring active API keys or live blockchain gas:
+FaceTrace includes a comprehensive unit test suite covering all modules without requiring active API keys or live blockchain transactions:
 
 ```bash
 pytest
 ```
 
-**Test Execution Results (107 Tests Passing):**
-```
+**Test Execution Results (115 Tests Passing):**
+
+```text
 ============================= test session starts ==============================
 platform win32 -- Python 3.14.x, pytest-9.x.x, pluggy-1.x.x
 rootdir: C:\Projects\social-detective
 configfile: pyproject.toml
 testpaths: tests
-collected 107 items
+collected 115 items
 
 tests\test_blockchain.py ....                                            [  3%]
-tests\test_face.py ....                                                  [  7%]
-tests\test_harvest.py ..............                                     [ 20%]
-tests\test_hashing.py .............                                      [ 32%]
-tests\test_identity.py .................                                 [ 48%]
-tests\test_linkedin.py ................                                  [ 63%]
-tests\test_matching.py ........                                          [ 71%]
-tests\test_memory_web3.py ....                                           [ 74%]
-tests\test_ocr.py ..                                                     [ 76%]
+tests\test_face.py .....                                                 [  8%]
+tests\test_geo.py .......                                                [ 14%]
+tests\test_harvest.py ..............                                     [ 26%]
+tests\test_hashing.py .............                                      [ 37%]
+tests\test_identity.py .................                                 [ 52%]
+tests\test_linkedin.py ................                                  [ 66%]
+tests\test_matching.py ........                                          [ 73%]
+tests\test_memory_web3.py ....                                           [ 77%]
+tests\test_ocr.py ..                                                     [ 78%]
 tests\test_search.py .........................                           [100%]
 
-============================ 107 passed in ~42s ================================
+============================ 115 passed in ~49s ================================
 ```
 
-### Verifying GPU Acceleration
+<br/>
 
-Confirm inference runs on the NVIDIA GPU and measure the speedup:
+### GPU vs. CPU Performance Benchmarks
+
+Measure inference execution time on your hardware:
+
 ```bash
 python - <<'EOF'
 import time, cv2
 from app.face import FaceProcessor
 
 fp = FaceProcessor()
-print("GPU in use:", fp.using_gpu)
+print("GPU Active:", fp.using_gpu)
 
 img = cv2.imread("docs/assets/face_embedding_concept.jpg")
-fp._app.get(img)                       # warmup
-t0 = time.perf_counter(); fp._app.get(img)
-print(f"face pass: {(time.perf_counter()-t0)*1000:.0f} ms")
+fp._app.get(img)  # Warmup pass
+t0 = time.perf_counter()
+fp._app.get(img)
+print(f"Inference latency: {(time.perf_counter() - t0) * 1000:.1f} ms")
 EOF
 ```
-Typical numbers on an RTX 3060 Ti: **~19 ms/face on GPU vs ~175 ms/face on CPU**, with numerically equivalent embeddings (cosine > 0.9999).
+
+**Benchmark Results (NVIDIA RTX 3060 Ti):**
+- **GPU Inference Latency**: `~19 ms / face`
+- **CPU Inference Latency**: `~175 ms / face` *(~9.2x speedup on GPU)*
+- **Embedding Equivalence**: Cosine similarity $> 0.9999$ across GPU and CPU executions.
 
 ---
 
-## ⚖️ Privacy, Ethics & Responsible Disclosure
+## Privacy, Ethics & Responsible Disclosure
 
 > [!IMPORTANT]
-> **Facial similarity is a statistical metric, not legal proof of personal identity.**
-> A high similarity score (e.g., 95%+) indicates strong geometrical resemblance between two photographic representations. It should serve as an investigative lead, not conclusive proof of identity.
+> **Facial similarity is a statistical metric, not definitive legal identity.**
+> A high similarity score (e.g. 95%+) signifies strong geometric resemblance between photographic features. It serves as an investigative lead, not conclusive proof of human identity.
+
+<br/>
 
 > [!IMPORTANT]
-> **The blockchain notarizes content authenticity, not human truth.**
-> Registering a content hash on Ethereum proves cryptographically that a specific digital artifact (text, URL, and media bytes) was discovered in that exact form at that specific timestamp. It does not certify the veracity of statements made in the post.
+> **Blockchain notarization certifies content authenticity, not external truth.**
+> Registering a content hash on Ethereum proves cryptographically that a specific digital artifact (text, URL, media bytes) was acquired in that exact format at that block height. It does not certify the factual accuracy of claims made within the post.
+
+<br/>
 
 > [!WARNING]
 > **Zero biometric data is stored on-chain.**
-> Facial embeddings, coordinates, crops, and private identity records are never transmitted to the blockchain. Only the irreversible SHA-256 fingerprint of the public post content is immutably recorded.
+> Biometric vectors, facial crops, and private identity files are never broadcast to the blockchain. Only the irreversible SHA-256 cryptographic digest of the public post content is permanently recorded.
+
+<br/>
 
 > [!CAUTION]
-> **Strictly for lawful OSINT and academic research.**
-> Always obtain appropriate authorizations and adhere to local privacy regulations (e.g. GDPR, CCPA, BIPA). Do not use this software for harassment, stalking, or unauthorized surveillance.
+> **Strictly for lawful OSINT, academic research, and forensic auditing.**
+> Users must adhere to applicable data protection regulations (e.g., GDPR, CCPA, BIPA) and terms of service. Do not use this framework for unlawful surveillance, harassment, or non-consensual tracking.
 
 ---
 
-## 📄 License
+## License
 
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for complete terms.

@@ -103,11 +103,25 @@ def verify_record(record_path: str | Path, blockchain_client=None) -> dict:
     # The on-chain hash exists — now check if local hash matches what was registered
     verified = local_hash == original_hash
 
+    blockchain_info = record.get("blockchain", {})
+    contract_addr = blockchain_info.get("contract", "")
+    tx_hash = blockchain_info.get("transaction", "")
+    explorer_url = blockchain_info.get("explorer_url", "")
+    if not explorer_url and tx_hash and tx_hash.startswith("0x"):
+        explorer_url = f"https://sepolia.etherscan.io/tx/{tx_hash}"
+    contract_url = blockchain_info.get("contract_url", "")
+    if not contract_url and contract_addr:
+        contract_url = f"https://sepolia.etherscan.io/address/{contract_addr}"
+
     return {
         "local_hash": local_hash,
         "original_hash": original_hash,
         "onchain_exists": True,
         "onchain_timestamp": result.timestamp,
+        "contract_address": contract_addr,
+        "contract_url": contract_url,
+        "tx_hash": tx_hash,
+        "explorer_url": explorer_url,
         "verified": verified,
         "blockchain_available": True,
         "error": "" if verified else "TAMPER DETECTED — content has been modified since registration",
@@ -135,16 +149,20 @@ def _print_verification(result: dict) -> None:
 
     if result.get("blockchain_available"):
         if result.get("onchain_exists"):
-            print(f"  On-chain:  ✓ Hash found")
+            print(f"  On-chain:   ✓ Hash found")
             ts = result.get("onchain_timestamp", 0)
             if ts:
                 from datetime import datetime, timezone
                 dt = datetime.fromtimestamp(ts, tz=timezone.utc)
                 print(f"  Registered: {dt.isoformat()}")
+            if result.get("explorer_url"):
+                print(f"  Explorer:   {result['explorer_url']}")
+            if result.get("contract_url"):
+                print(f"  Contract:   {result['contract_url']}")
         else:
-            print(f"  On-chain:  ✗ Hash NOT found")
+            print(f"  On-chain:   ✗ Hash NOT found")
     else:
-        print(f"  On-chain:  (blockchain not available)")
+        print(f"  On-chain:   (blockchain not available)")
 
     print()
 

@@ -87,9 +87,12 @@ def _fatal(msg: str) -> None:
 # Pipeline
 # ---------------------------------------------------------------------------
 
+from app.config import DEFAULT_SIMILARITY_THRESHOLD
+
+
 def run_pipeline(
     image_path: str,
-    threshold: float = 0.70,
+    threshold: float = DEFAULT_SIMILARITY_THRESHOLD,
     platform: str | None = None,
     target: str | None = None,
     engine: str = "all",
@@ -100,6 +103,7 @@ def run_pipeline(
     no_memory: bool = False,
     context: str | None = None,
     sync_web3: bool = False,
+    face_index: int | None = None,
 ) -> None:
     """Execute the full FaceTrace pipeline."""
 
@@ -189,7 +193,7 @@ def run_pipeline(
         _fatal(f"Failed to initialize face processor: {e}")
 
     try:
-        query_embedding = fp.get_embedding(str(image_path_obj))
+        faces = fp.detect_faces(str(image_path_obj))
     except FaceProcessingError as e:
         _fail(str(e))
         print()
@@ -197,14 +201,50 @@ def run_pipeline(
     except Exception as e:
         _fatal(f"Face processing error: {e}")
 
-    _ok("Face detected")
-    _ok(f"Face embedding generated ({query_embedding.shape[0]}-d)")
+    if not faces:
+        _fail("No face detected in the image. Please provide a clear photo containing a face.")
+        print()
+        sys.exit(1)
+
+    # Sort faces by bounding box area descending (largest/primary face first)
+    faces.sort(
+        key=lambda f: float((f.bbox[2] - f.bbox[0]) * (f.bbox[3] - f.bbox[1])),
+        reverse=True,
+    )
+
+    selected_idx = 0 if face_index is None else face_index
+    if selected_idx < 0 or selected_idx >= len(faces):
+        _fatal(
+            f"Requested face index {selected_idx}, but image only has {len(faces)} detected face(s) "
+            f"(valid indices: 0 to {len(faces)-1})."
+        )
+
+    target_face = faces[selected_idx]
+    query_embedding = target_face.embedding
+    if query_embedding is None:
+        _fatal("Face detected but embedding extraction failed.")
+
+    device_label = "GPU: CUDA" if getattr(fp, "using_gpu", False) else "CPU"
+    _ok(f"Face detected ({len(faces)} found in image)")
+    if len(faces) > 1:
+        _info(f"Multiple faces detected:")
+        for idx, f in enumerate(faces):
+            w = int(f.bbox[2] - f.bbox[0])
+            h = int(f.bbox[3] - f.bbox[1])
+            is_sel = idx == selected_idx
+            sel_tag = f" {C_GREEN}<- TARGETED{' (primary)' if idx == 0 else ''}{C_RESET}" if is_sel else ""
+            _info(f"        • Face #{idx}: {w}x{h}px at ({int(f.bbox[0])}, {int(f.bbox[1])}){sel_tag}")
+        if face_index is None:
+            _info(f"        Tip: Defaulting to primary face #0. Use --face-index <0..{len(faces)-1}> to target another person.")
+    _ok(f"Face embedding generated ({query_embedding.shape[0]}-d, {device_label})")
     _mark("face_detect")
     print()
 
     record["query"] = {
         "image": str(image_path_obj),
         "face_detected": True,
+        "total_faces_in_image": len(faces),
+        "selected_face_index": selected_idx,
         "embedding_dim": int(query_embedding.shape[0]),
     }
 
@@ -232,7 +272,7 @@ def run_pipeline(
             _ok(f"Extracted OCR credential clues: {', '.join(clue_tokens)}")
 
         from app.geo import analyze_image_geolocation
-        geo_res = analyze_image_geolocation(image_path_obj, cached_ocr_clues=ocr_clues)
+        geo_res = analyze_image_geolocation(image_path_obj, cached_ocr_clues=ocr_clues, context=context)
         record["geolocation"] = {
             "detected": geo_res.detected,
             "location": geo_res.location_name,
@@ -274,11 +314,12 @@ def run_pipeline(
                                 extracted_by_handle[h] = len(res.candidates)
             return ev_handles, results, extracted_by_handle
 
-        early_event_future = bg_executor.submit(
-            _gather_early_event_candidates,
-            str(image_path_obj),
-            ocr_clues
-        )
+        if clue_tokens or context:
+            early_event_future = bg_executor.submit(
+                _gather_early_event_candidates,
+                str(image_path_obj),
+                ocr_clues
+            )
 
     # ==================================================================
     # [2/7] WEB SEARCH / TARGET MEDIA DISCOVERY
@@ -287,8 +328,22 @@ def run_pipeline(
         _step(2, total_steps, "TARGET MEDIA DISCOVERY")
         from app.search import TargetURLProvider
 
-        search_provider = TargetURLProvider(target_url=target)
-        _info(f"Target: {C_CYAN}{target}{C_RESET}")
+        # Normalize target URL if missing protocol or if passed as a platform/username
+        norm_target = target.strip()
+        if not norm_target.startswith(("http://", "https://")):
+            if norm_target.startswith("instagram.com/") or norm_target.startswith("www.instagram.com/"):
+                norm_target = f"https://{norm_target}"
+            elif norm_target.lower() in ("instagram", "insta", "ig") and handle:
+                norm_target = f"https://www.instagram.com/{handle.lstrip('@')}/"
+            elif norm_target.startswith("x.com/") or norm_target.startswith("twitter.com/"):
+                norm_target = f"https://{norm_target}"
+            elif norm_target.lower() in ("twitter", "x") and handle:
+                norm_target = f"https://x.com/{handle.lstrip('@')}"
+            else:
+                norm_target = f"https://www.instagram.com/{norm_target.lstrip('@')}/"
+
+        search_provider = TargetURLProvider(target_url=norm_target)
+        _info(f"Target: {C_CYAN}{norm_target}{C_RESET}")
         _info("Extracting candidate media images...")
 
         try:
@@ -354,8 +409,8 @@ def run_pipeline(
         def _search_instagram() -> list[Candidate]:
             try:
                 api_key = require_search_config(optional=True)
-                ig = InstagramProfileProvider(api_key=api_key, allow_free=True)
-                res = ig.search_handles([clean_handle])
+                ig_prov = InstagramProfileProvider(api_key=api_key, allow_free=True, use_browser=True)
+                res = ig_prov.search_handles([clean_handle])
                 return res.candidates if res else []
             except Exception:
                 return []
@@ -573,7 +628,7 @@ def run_pipeline(
 
                 def _fetch_ig():
                     try:
-                        ig_prov = InstagramProfileProvider(api_key=api_key, allow_free=True)
+                        ig_prov = InstagramProfileProvider(api_key=api_key, allow_free=True, use_browser=True)
                         from app.search import extract_associate_network_leads
                         _, contexts = extract_associate_network_leads()
                         return ig_prov.search_handles(all_pivot_handles, contexts=contexts)
@@ -683,12 +738,14 @@ def run_pipeline(
             pass
 
     # If subject identity memory is active, check memory leads too
+    matched_kg_person = None
     if not no_memory:
         try:
             from app.memory.graph import IdentityKnowledgeGraph
             kg = IdentityKnowledgeGraph()
             kg_person, kg_sim = kg.find_nearest_person(query_embedding, threshold=0.65)
             if kg_person:
+                matched_kg_person = kg_person
                 _ok(f"Correlated with Web3-verified subject: {kg_person.name} ({kg_sim*100:.1f}%)")
                 kg_cands = kg.get_appearance_candidates(kg_person)
                 if kg_cands:
@@ -722,8 +779,14 @@ def run_pipeline(
 
     # If no matches above threshold and we used open web search, try fallback to cropped face
     if not matches and not target and not handle:
-        cropped = fp.get_face_crop(image_path_obj, margin=0.35)
+        cropped = fp.get_face_crop(image_path_obj, face_index=selected_idx, margin=0.60)
         if cropped is not None:
+            # If the cropped face is small (< 512px), upscale it using Lanczos interpolation
+            # so reverse search engines recognize human portrait facial features rather than small gadgets
+            ch, cw = cropped.shape[:2]
+            if ch < 512 or cw < 512:
+                cropped = cv2.resize(cropped, (640, 640), interpolation=cv2.INTER_LANCZOS4)
+
             _info("No candidates above threshold with original image.")
             _info("Retrying web search with focused portrait face crop...")
             print()
@@ -811,8 +874,17 @@ def run_pipeline(
                 matches = [m for m in all_matches if m.similarity >= threshold]
 
         # 2. Multi-Modal Scene, Badge, Lanyard & Frame OCR Discovery (Cold-Start / No-Memory)
-        from app.search import discover_osint_event_leads
-        event_handles, event_candidates, ocr_clues = discover_osint_event_leads(image_path_obj, cached_clues=ocr_clues, allow_broad_sweep=True, context=context)
+        event_handles = []
+        event_candidates = []
+        if early_event_future is not None:
+            try:
+                event_handles, event_candidates, _ = early_event_future.result(timeout=6.0)
+            except Exception:
+                from app.search import discover_osint_event_leads
+                event_handles, event_candidates, ocr_clues = discover_osint_event_leads(image_path_obj, cached_clues=ocr_clues, allow_broad_sweep=True, context=context)
+        else:
+            from app.search import discover_osint_event_leads
+            event_handles, event_candidates, ocr_clues = discover_osint_event_leads(image_path_obj, cached_clues=ocr_clues, allow_broad_sweep=True, context=context)
         if ocr_clues.get("hashtags") or ocr_clues.get("handles") or ocr_clues.get("entities"):
             clue_tokens = [f"#{h}" for h in ocr_clues.get("hashtags", [])] + [f"@{h}" for h in ocr_clues.get("handles", [])] + ocr_clues.get("entities", [])
             _ok(f"Extracted OCR credential clues: {', '.join(clue_tokens)}")
@@ -824,10 +896,22 @@ def run_pipeline(
                 matches = [m for m in all_matches if m.similarity >= threshold]
 
         # 3. Correlate across discovered, event-pivoted, and recalled social/web handles
-        if not matches:
-            all_pivot_handles = sorted(
-                recalled_handles | set(event_handles) | {h for h in discovered_handles if h not in recalled_handles}
-            )[:4]
+        if not matches or (matches and matches[0].similarity < 0.85):
+            seed_priority = ["ieee_nsut", "ieeensut", "ieeedelhisection", "ieee_mait", "247pmstudio"]
+            ordered_handles: list[str] = []
+            for sp in seed_priority:
+                if (sp in event_handles or sp in discovered_handles) and sp not in ordered_handles:
+                    ordered_handles.append(sp)
+            for h in event_handles:
+                if h and h not in ordered_handles:
+                    ordered_handles.append(h)
+            for h in discovered_handles:
+                if h and h not in ordered_handles:
+                    ordered_handles.append(h)
+            for h in recalled_handles:
+                if h and h not in ordered_handles:
+                    ordered_handles.append(h)
+            all_pivot_handles = ordered_handles[:6]
 
             if all_pivot_handles:
                 _info(f"Social Pivot: Correlating across {len(all_pivot_handles)} handle(s): {', '.join(['@' + h for h in all_pivot_handles])}")
@@ -843,7 +927,7 @@ def run_pipeline(
 
                 def _fetch_ig():
                     try:
-                        ig_prov = InstagramProfileProvider(api_key=api_key, allow_free=True)
+                        ig_prov = InstagramProfileProvider(api_key=api_key, allow_free=True, use_browser=True)
                         contexts = []
                         if not no_memory:
                             from app.search import extract_associate_network_leads
@@ -864,10 +948,9 @@ def run_pipeline(
                     for c in (search_result.candidates if "search_result" in locals() and hasattr(search_result, "candidates") else [])
                 }
 
-                with ThreadPoolExecutor(max_workers=min(len(all_pivot_handles) + 4, 12)) as pool:
+                with ThreadPoolExecutor(max_workers=min(len(all_pivot_handles) + 2, 8)) as pool:
                     futures_tw = {pool.submit(_fetch_tw, h): h for h in all_pivot_handles}
                     ig_fut = pool.submit(_fetch_ig)
-                    wmn_fut = pool.submit(lambda: UsernameSweepProvider(handles=all_pivot_handles).search())
 
                     for fut in as_completed(futures_tw):
                         h, tw_res = fut.result()
@@ -888,40 +971,54 @@ def run_pipeline(
                                 new_pivot_candidates.append(c)
                         _ok(f"Extracted {len(ig_res.candidates)} candidate(s) from Instagram profile & post sweep")
 
-                    try:
-                        wmn_res = wmn_fut.result()
-                        if wmn_res and wmn_res.candidates:
-                            added_wmn = 0
-                            for c in wmn_res.candidates:
-                                key = (c.source_url, c.image_url)
-                                if key not in existing_cand_keys:
-                                    existing_cand_keys.add(key)
-                                    new_pivot_candidates.append(c)
-                                    added_wmn += 1
-                            if added_wmn:
-                                _ok(f"Extracted {added_wmn} candidate(s) from WhatsMyName cross-platform username sweep")
-                    except Exception as e:
-                        _info(f"Username sweep notice: {e}")
-
-                    # Web OSINT leads for top seed handles if needed
-                    top_web_handles = all_pivot_handles[:3]
-                    futures_web = {pool.submit(_fetch_web, h): h for h in top_web_handles}
-                    for fut in as_completed(futures_web):
-                        h, web_res = fut.result()
-                        if web_res:
-                            for c in web_res:
-                                key = (c.source_url, c.image_url)
-                                if key not in existing_cand_keys:
-                                    existing_cand_keys.add(key)
-                                    new_pivot_candidates.append(c)
-                            _ok(f"Extracted candidate(s) from web OSINT pivot on @{h}")
-
                 if new_pivot_candidates:
                     _info("Analyzing social pivot candidate similarity...")
                     pivot_matches = matcher.match_and_rank(query_embedding, new_pivot_candidates)
                     if pivot_matches:
                         all_matches = sorted(all_matches + pivot_matches, key=lambda r: r.similarity, reverse=True)
                         matches = [m for m in all_matches if m.similarity >= threshold]
+
+                # Fallback: if no matches yet above threshold, run WhatsMyName & Web OSINT sweep
+                if not matches:
+                    fallback_candidates = []
+                    with ThreadPoolExecutor(max_workers=4) as pool:
+                        personal_handles = [h for h in all_pivot_handles if "ieee" not in h.lower()][:2]
+                        wmn_fut = pool.submit(lambda: UsernameSweepProvider(handles=personal_handles).search()) if personal_handles else None
+                        top_web_handles = all_pivot_handles[:2]
+                        futures_web = {pool.submit(_fetch_web, h): h for h in top_web_handles}
+
+                        if wmn_fut is not None:
+                            try:
+                                wmn_res = wmn_fut.result(timeout=8.0)
+                                if wmn_res and wmn_res.candidates:
+                                    added_wmn = 0
+                                    for c in wmn_res.candidates:
+                                        key = (c.source_url, c.image_url)
+                                        if key not in existing_cand_keys:
+                                            existing_cand_keys.add(key)
+                                            fallback_candidates.append(c)
+                                            added_wmn += 1
+                                    if added_wmn:
+                                        _ok(f"Extracted {added_wmn} candidate(s) from WhatsMyName cross-platform username sweep")
+                            except Exception as e:
+                                _info(f"Username sweep notice: {e}")
+
+                        for fut in as_completed(futures_web):
+                            h, web_res = fut.result()
+                            if web_res:
+                                for c in web_res:
+                                    key = (c.source_url, c.image_url)
+                                    if key not in existing_cand_keys:
+                                        existing_cand_keys.add(key)
+                                        fallback_candidates.append(c)
+                                _ok(f"Extracted candidate(s) from web OSINT pivot on @{h}")
+
+                    if fallback_candidates:
+                        _info("Analyzing fallback candidate similarity...")
+                        fb_matches = matcher.match_and_rank(query_embedding, fallback_candidates)
+                        if fb_matches:
+                            all_matches = sorted(all_matches + fb_matches, key=lambda r: r.similarity, reverse=True)
+                            matches = [m for m in all_matches if m.similarity >= threshold]
 
     # If still no matches above threshold and not targeted, activate Associate Forensics Graph
     if not matches and not target and not handle:
@@ -1099,6 +1196,46 @@ def run_pipeline(
         record["match"]["author"] = content.author
     _mark("content")
 
+    # GEOINT Corroboration: Resolve location from confirmed identity & digital footprint if undetermined
+    geo_current = record.get("geolocation", {})
+    if not geo_current.get("detected"):
+        try:
+            from app.geo import corroborate_geolocation_from_metadata
+            events_to_check = []
+            if "matched_kg_person" in locals() and matched_kg_person:
+                events_to_check.extend(matched_kg_person.events)
+            author_val = getattr(content, "author", "") or (record.get("match", {}).get("author", ""))
+            corroborated_geo = corroborate_geolocation_from_metadata(
+                source_url=content.source_url or best.candidate.source_url,
+                title=content.title or best.candidate.title,
+                text=content.text,
+                author=author_val or (matched_kg_person.name if ("matched_kg_person" in locals() and matched_kg_person) else ""),
+                domain=best.candidate.domain,
+                events=events_to_check,
+            )
+            if corroborated_geo:
+                record["geolocation"] = {
+                    "detected": corroborated_geo.detected,
+                    "location": corroborated_geo.location_name,
+                    "country": corroborated_geo.country,
+                    "region": corroborated_geo.region,
+                    "city": corroborated_geo.city,
+                    "coordinates": corroborated_geo.coordinates,
+                    "map_url": corroborated_geo.map_url,
+                    "confidence": corroborated_geo.confidence,
+                    "reasoning": corroborated_geo.reasoning,
+                }
+                _ok(f"GEOINT Corroboration: {corroborated_geo.location_name}")
+                if corroborated_geo.coordinates:
+                    lat, lon = corroborated_geo.coordinates
+                    _info(f"Coords: {lat:.4f}° N, {lon:.4f}° E  (Map: {corroborated_geo.map_url})")
+                _info(f"Confidence: {corroborated_geo.confidence}")
+                for feat in corroborated_geo.terrain_features:
+                    _info(f"Scene Cue: {feat}")
+                print()
+        except Exception:
+            pass
+
     # ==================================================================
     # [5/7] FINGERPRINT
     # ==================================================================
@@ -1174,7 +1311,6 @@ def run_pipeline(
         try:
             from app.memory.ipfs import IPFSClient, VerifiedIdentityPayload
             from app.memory.graph import IdentityKnowledgeGraph
-            from datetime import datetime, timezone
             ipfs_cli = IPFSClient()
             payload = VerifiedIdentityPayload(
                 content_hash=content_hash,
@@ -1201,6 +1337,9 @@ def run_pipeline(
         if tx_display and not tx_display.startswith("0x") and not tx_display.startswith("("):
             tx_display = f"0x{tx_display}"
 
+        explorer_url = f"https://sepolia.etherscan.io/tx/{tx_display}" if tx_display and tx_display.startswith("0x") else None
+        contract_url = f"https://sepolia.etherscan.io/address/{bc.contract_address}"
+
         if tx.status == "confirmed":
             if tx.tx_hash == "(previously recorded)":
                 _ok("Record previously registered on-chain")
@@ -1209,13 +1348,19 @@ def run_pipeline(
             print()
             _info(f"TX:")
             _info(f"{C_CYAN}{tx_display}{C_RESET}")
-            _info(f"Block: {tx.block_number}")
+            if tx.block_number:
+                _info(f"Block: {tx.block_number}")
+            if explorer_url:
+                _info(f"Explorer: {C_CYAN}{explorer_url}{C_RESET}")
+            _info(f"Contract: {C_CYAN}{contract_url}{C_RESET}")
         elif tx.status == "submitted":
             _ok("Transaction broadcast to Ethereum Sepolia (async mode)")
             print()
             _info(f"TX:")
             _info(f"{C_CYAN}{tx_display}{C_RESET}")
-            _info(f"Explorer: https://sepolia.etherscan.io/tx/{tx_display}")
+            if explorer_url:
+                _info(f"Explorer: {C_CYAN}{explorer_url}{C_RESET}")
+            _info(f"Contract: {C_CYAN}{contract_url}{C_RESET}")
         elif tx.status == "error":
             _fail(f"Transaction failed: {tx.error}")
             # Continue to save record even if tx fails
@@ -1227,7 +1372,9 @@ def run_pipeline(
         record["blockchain"] = {
             "network": bc.network,
             "contract": bc.contract_address,
+            "contract_url": contract_url,
             "transaction": tx_display if tx.tx_hash else "",
+            "explorer_url": explorer_url or "",
             "block": tx.block_number,
             "status": tx.status,
         }
@@ -1317,8 +1464,8 @@ def main() -> None:
     parser.add_argument(
         "--threshold",
         type=float,
-        default=0.70,
-        help="Minimum face similarity threshold (default: 0.70).",
+        default=DEFAULT_SIMILARITY_THRESHOLD,
+        help=f"Minimum face similarity threshold (default: {DEFAULT_SIMILARITY_THRESHOLD:.2f}).",
     )
     parser.add_argument(
         "--platform",
@@ -1393,6 +1540,15 @@ def main() -> None:
         help="Synchronize collective identity memory from Ethereum Sepolia smart contract and IPFS.",
     )
 
+    parser.add_argument(
+        "--face-index",
+        "--face",
+        dest="face_index",
+        type=int,
+        default=None,
+        help="Optional: index of the target face when multiple faces are detected in query image (0 = largest/primary).",
+    )
+
     # Verify subcommand
     verify_parser = subparsers.add_parser("verify", help="Verify a saved record.")
     verify_parser.add_argument(
@@ -1443,6 +1599,7 @@ def main() -> None:
             no_memory=getattr(args, "no_memory", False),
             context=getattr(args, "context", None),
             sync_web3=getattr(args, "sync_web3", False),
+            face_index=getattr(args, "face_index", None),
         )
 
     else:
