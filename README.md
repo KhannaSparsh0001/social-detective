@@ -787,15 +787,14 @@ python -m app.memory.migrate
 
 <br/>
 
-#### Option H: Group Photos & Multi-Face Targeting (`--face-index`)
-When an input image contains multiple faces (group photos, stage pictures, selfies), FaceTrace automatically detects and indexes all faces, defaulting to the primary (largest) face, or allows targeting any person by index:
+#### Option H: Group Photos & Interactive Crowd Pivot
+When an input image contains multiple faces (group photos, stage pictures, selfies), the CLI automatically launches an **Interactive Visual TUI**. It draws bounding boxes over all detected faces, automatically opens the annotated image on your screen, and pauses the terminal to ask you which face index to target:
 ```bash
-# Auto-detects all faces and defaults to primary/largest face #0
 python -m app.main --image ./data/input/test_face_23.jpg
-
-# Explicitly target face #1 in a group photo
-python -m app.main --image ./data/input/test_face_23.jpg --face-index 1
 ```
+*Tip: You can bypass the interactive prompt by explicitly targeting a face: `python -m app.main --image ./data/input/test_face_23.jpg --face-index 1`*
+
+**Crowd Pivot TUI:** If the primary search yields 0 candidates, the CLI will intercept the failure and interactively ask if you'd like to perform a **Crowd Pivot**. It will automatically extract background metadata and allow you to inject `[MEMORY]` keywords into a synchronous rescue search!
 
 ---
 

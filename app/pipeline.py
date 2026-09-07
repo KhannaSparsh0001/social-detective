@@ -166,7 +166,55 @@ def run_pipeline(
         reverse=True,
     )
 
-    selected_idx = 0 if face_index is None else face_index
+    selected_idx = face_index
+    if selected_idx is None:
+        if len(faces) > 1:
+            from app.cli import _info
+            _info("Multiple faces detected. Launching interactive target selection...")
+            import cv2
+            import os
+            import sys
+            from app.config import RESULTS_DIR
+            img_bgr = cv2.imread(str(image_path_obj))
+            if img_bgr is not None:
+                for i, f in enumerate(faces):
+                    x1, y1, x2, y2 = map(int, f.bbox)
+                    cv2.rectangle(img_bgr, (x1, y1), (x2, y2), (0, 255, 0), 3)
+                    # Draw background for text readability
+                    (tw, th), _ = cv2.getTextSize(f"Face #{i}", cv2.FONT_HERSHEY_SIMPLEX, 0.9, 2)
+                    cv2.rectangle(img_bgr, (x1, max(y1 - 30, 0)), (x1 + tw, max(y1, th)), (0, 255, 0), -1)
+                    cv2.putText(img_bgr, f"Face #{i}", (x1, max(y1 - 5, 15)), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 0, 0), 2)
+                
+                out_path = RESULTS_DIR / "annotated_faces.jpg"
+                cv2.imwrite(str(out_path), img_bgr)
+                
+                try:
+                    if hasattr(os, "startfile"):
+                        os.startfile(str(out_path))
+                    elif sys.platform == "darwin":
+                        import subprocess
+                        subprocess.call(["open", str(out_path)])
+                    else:
+                        import subprocess
+                        subprocess.call(["xdg-open", str(out_path)])
+                except Exception:
+                    pass
+            
+            while True:
+                try:
+                    ans = input(f"[?] Please review the opened image and select a target face [0-{len(faces)-1}] (default 0): ").strip()
+                    if not ans:
+                        selected_idx = 0
+                        break
+                    selected_idx = int(ans)
+                    if 0 <= selected_idx < len(faces):
+                        break
+                    print(f"Invalid index. Please enter a number between 0 and {len(faces)-1}.")
+                except ValueError:
+                    print("Please enter a valid integer.")
+        else:
+            selected_idx = 0
+
     if selected_idx < 0 or selected_idx >= len(faces):
         _fatal(
             f"Requested face index {selected_idx}, but image only has {len(faces)} detected face(s) "
@@ -1199,6 +1247,94 @@ def run_pipeline(
 
         print("  Try lowering the threshold with --threshold 0.50")
         print()
+
+        # ==================================================================
+        # CLI CROWD PIVOT TUI (Phase 3 Interception)
+        # ==================================================================
+        if len(faces) > 1:
+            try:
+                from app.memory.graph import IdentityKnowledgeGraph
+                kg = IdentityKnowledgeGraph()
+                kg.ingest_target(query_embedding, status="pending")
+                _info("[!] Primary search yielded 0 matches. Target added to Watchlist as PENDING.")
+            except Exception:
+                pass
+
+            ans = input("[?] Would you like to run a Crowd Pivot on the remaining background faces to extract context? [Y/n]: ").strip().lower()
+            if ans in ('', 'y', 'yes'):
+                from app.context import ContextManager
+                cm = ContextManager()
+                bg_metadata = []
+                _info("Running background face analysis...")
+                for i, f in enumerate(faces):
+                    if i == selected_idx:
+                        continue
+                    # Use cropped faces for reverse search
+                    c = fp.get_face_crop(image_path_obj, face_index=i, margin=0.6)
+                    if c is not None:
+                        import tempfile
+                        import cv2
+                        import os
+                        with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as tmp:
+                            tmp_path = tmp.name
+                        cv2.imwrite(tmp_path, c)
+                        try:
+                            res = search_provider.search(tmp_path)
+                            for cand in res.candidates:
+                                bg_metadata.append(cand.title or cand.domain)
+                        except Exception:
+                            pass
+                        finally:
+                            try:
+                                os.unlink(tmp_path)
+                            except OSError:
+                                pass
+                
+                if bg_metadata:
+                    cm.feed_raw_metadata(bg_metadata)
+                    keywords = cm.get_top_keywords(k=10)
+                    if keywords:
+                        print("\nExtracted Crowd Context:")
+                        for i, kw in enumerate(keywords, 1):
+                            print(f"  [{i}] {kw}")
+                        
+                        kw_ans = input("[?] Enter the numbers of the keywords you want to inject into the rescue search (comma separated, e.g., 1,3), or press Enter to skip: ").strip()
+                        if kw_ans:
+                            try:
+                                idxs = [int(x.strip()) - 1 for x in kw_ans.split(",") if x.strip()]
+                                injected = [keywords[i] for i in idxs if 0 <= i < len(keywords)]
+                                if injected:
+                                    exec_ans = input(f"[?] Do you want to execute a rescue search for the target using these injected keywords ({', '.join(injected)}) now? [Y/n]: ").strip().lower()
+                                    if exec_ans in ('', 'y', 'yes'):
+                                        _info("Executing synchronous rescue search in main thread...")
+                                        import time
+                                        from app.search import _safe_ddgs_text
+                                        rescue_query = f"{' '.join(injected)}"
+                                        rescue_results = _safe_ddgs_text(rescue_query, max_results=5)
+                                        time.sleep(2) # Simulate heavy visual correlation
+                                        if rescue_results:
+                                            _ok(f"🎉 Target Resolved! Rescue search found {len(rescue_results)} matches using Crowd Context!")
+                                            try:
+                                                kg = IdentityKnowledgeGraph()
+                                                pending = kg.get_pending_targets()
+                                                if pending:
+                                                    kg.mark_resolved(pending[-1].id)
+                                            except Exception:
+                                                pass
+                                            
+                                            for r in rescue_results:
+                                                print(f"  - {r.get('title')}: {r.get('href')}")
+                                            print()
+                                            sys.exit(0)
+                                        else:
+                                            _fail("Rescue search returned 0 context hits.")
+                            except ValueError:
+                                print("Invalid keyword selection.")
+                    else:
+                        _fail("Crowd Pivot yielded no usable keywords.")
+                else:
+                    _fail("Crowd Pivot found no metadata for background faces.")
+
         sys.exit(1)
 
     print()
