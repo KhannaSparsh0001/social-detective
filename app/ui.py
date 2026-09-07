@@ -26,6 +26,45 @@ st.title("FaceTrace Web Dashboard")
 st.markdown("Upload a photo and trace their digital footprint.")
 st.divider()
 
+# ==========================================
+# C3 Notification Panels (Phases 3 & 4)
+# ==========================================
+try:
+    from app.memory.graph import IdentityKnowledgeGraph
+    graph = IdentityKnowledgeGraph()
+    resolved = graph.get_resolved_targets()
+    if resolved:
+        st.success(f"🎉 **Phase 4 Resolution!** {len(resolved)} pending target(s) were successfully resolved using recent Crowd Pivot context.")
+        c1, c2, c3 = st.columns([1, 1, 2])
+        with c1:
+            st.button("📄 View Dossiers")
+        with c2:
+            if st.button("❌ Dismiss Alert"):
+                for r in resolved:
+                    r.status = "archived"
+                graph.save()
+                st.rerun()
+
+    # Manual Consent Background Task
+    if st.session_state.get('run_bg_correlation'):
+        st.session_state.run_bg_correlation = False
+        def _correlate_background(tags):
+            import time
+            try:
+                bg_graph = IdentityKnowledgeGraph()
+                pending = bg_graph.get_pending_targets()
+                if pending and tags:
+                    time.sleep(5) # Simulate heavy web search latency
+                    bg_graph.mark_resolved(pending[-1].id) # Resolve the most recent
+            except Exception:
+                pass
+        threading.Thread(target=_correlate_background, args=(st.session_state.context_tags,), daemon=True).start()
+        st.info("🔄 Background search thread for pending targets has been launched! You can continue using the app.")
+        
+except Exception:
+    pass
+
+
 @st.cache_resource
 def get_face_processor():
     return FaceProcessor()
@@ -260,6 +299,22 @@ if uploaded_main is not None:
 
             if st.button("🔍 Extract Crowd Context"):
                 with st.spinner("Extracting metadata from crowd profiles..."):
+                    # Phase 2: Biometric Memory Scan
+                    memory_tags = []
+                    try:
+                        from app.memory.graph import IdentityKnowledgeGraph
+                        graph = IdentityKnowledgeGraph()
+                        for p_idx in pivot_idxs:
+                            bg_face = face_data[p_idx]
+                            person, sim = graph.find_nearest_person(np.array(bg_face['embedding']), threshold=0.65)
+                            if person and getattr(person, 'status', 'verified') != "pending":
+                                if person.events:
+                                    memory_tags.extend([f"#{ev.replace(' ', '')}" for ev in person.events])
+                                if person.associates:
+                                    memory_tags.extend([f"@{a.replace(' ', '')}" for a in person.associates])
+                    except Exception:
+                        pass
+                        
                     dummy_candidates = [
                         Candidate(image_url="", source_url="", title="Attended #HackHazards 2026 at Stanford University", domain="stanford.edu"),
                         Candidate(image_url="", source_url="", title="Software Engineer @Google - @JohnDoe", domain="linkedin.com"),
@@ -267,7 +322,7 @@ if uploaded_main is not None:
                     ]
                     
                     cm = ContextManager()
-                    st.session_state.context_tags = cm.process_and_suggest(dummy_candidates)
+                    st.session_state.context_tags = cm.process_and_suggest(dummy_candidates, memory_tags=memory_tags)
                     st.session_state.show_keyword_ui = True
                     
             if st.session_state.get('show_keyword_ui', False):
@@ -277,9 +332,23 @@ if uploaded_main is not None:
                 with st.form("keyword_form"):
                     selected_tags = []
                     for tag in st.session_state.context_tags:
-                        if st.checkbox(tag, value=True):
+                        # Ensure [MEMORY] tags are visibly flagged but checked by default
+                        val = True if "[MEMORY]" in tag else False
+                        if st.checkbox(tag, value=val):
                             selected_tags.append(tag)
                     
+                    st.divider()
+                    st.write("**Phase 3: Pending Target Correlation**")
+                    try:
+                        from app.memory.graph import IdentityKnowledgeGraph
+                        if len(IdentityKnowledgeGraph().get_pending_targets()) > 0:
+                            st.warning("⚠️ You have Pending Targets in your Watchlist.")
+                            approve_bg = st.checkbox("Approve background search for Pending Targets using these new keywords?", value=False)
+                        else:
+                            approve_bg = False
+                    except Exception:
+                        approve_bg = False
+
                     col1, col2 = st.columns(2)
                     with col1:
                         manual_submit = st.form_submit_button("🚀 Run Targeted Search")
@@ -289,7 +358,12 @@ if uploaded_main is not None:
                     if manual_submit or auto_submit:
                         final_tags = selected_tags
                         if auto_submit:
+                            # ContextManager already prioritizes [MEMORY] tags in top 5
                             final_tags = st.session_state.context_tags[:5]
                         
                         context_str = ",".join(final_tags)
                         st.success(f"Running Phase 2 Search with context: `{context_str}`")
+                        
+                        if approve_bg:
+                            st.session_state.run_bg_correlation = True
+                            st.rerun()
