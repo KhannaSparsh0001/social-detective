@@ -1,7 +1,7 @@
-# FaceTrace (SocialDetective) Architecture Document
+# Social Detective (SocialDetective) Architecture Document
 
 ## 1. System Overview
-**FaceTrace** is an autonomous forensic facial recognition and immutable evidence-notarization pipeline. The system bridges computer vision biometrics with decentralized ledger technology (Ethereum Sepolia) to prove content origin and detect post manipulation.
+**Social Detective** is an autonomous forensic facial recognition and immutable evidence-notarization pipeline. The system bridges computer vision biometrics with decentralized ledger technology (Ethereum Sepolia) to prove content origin and detect post manipulation.
 
 ## 2. Technology Stack
 - **Language**: Python 3.10+

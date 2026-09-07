@@ -1,5 +1,5 @@
 """
-Identity Knowledge Graph and Vector Memory module for FaceTrace.
+Identity Knowledge Graph and Vector Memory module for Social Detective.
 
 Maintains:
 - An in-memory and file-backed property graph (Persons, Accounts, Events).

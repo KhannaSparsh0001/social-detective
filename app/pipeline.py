@@ -1,5 +1,5 @@
 """
-FaceTrace — Face Search + Blockchain Verification CLI.
+Social Detective — Face Search + Blockchain Verification CLI.
 
 End-to-end pipeline:
     Face image → Face detection → Face encoding → Web search →
@@ -59,7 +59,7 @@ def run_pipeline(
     sync_web3: bool = False,
     face_index: int | None = None,
 ) -> None:
-    """Execute the full FaceTrace pipeline."""
+    """Execute the full Social Detective pipeline."""
 
     _banner()
 
@@ -169,7 +169,6 @@ def run_pipeline(
     selected_idx = face_index
     if selected_idx is None:
         if len(faces) > 1:
-            from app.cli import _info
             _info("Multiple faces detected. Launching interactive target selection...")
             import cv2
             import os

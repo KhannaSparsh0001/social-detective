@@ -20,9 +20,9 @@ from app.face import FaceProcessor
 from app.context import ContextManager
 from app.search import Candidate
 
-st.set_page_config(page_title="FaceTrace Dashboard", layout="wide")
+st.set_page_config(page_title="Social Detective Dashboard", layout="wide")
 
-st.title("FaceTrace Web Dashboard")
+st.title("Social Detective Web Dashboard")
 st.markdown("Upload a photo and trace their digital footprint.")
 st.divider()
 
@@ -187,7 +187,7 @@ if uploaded_main is not None:
                         target_idx = st.selectbox("Select Primary Target (Face #):", options=range(1, len(face_data) + 1))
 
             st.divider()
-            run_btn = st.button("🚀 Run FaceTrace", type="primary", use_container_width=True)
+            run_btn = st.button("🚀 Run Social Detective", type="primary", use_container_width=True)
 
         # ==========================================
         # Execution & Terminal Tabs
@@ -262,7 +262,7 @@ if uploaded_main is not None:
                     process.wait()
                     
                     if process.returncode == 0:
-                        status.update(label="FaceTrace Complete!", state="complete", expanded=False)
+                        status.update(label="Social Detective Complete!", state="complete", expanded=False)
                         st.session_state.phase_1_result = "success"
                         st.success("Target successfully traced! Check 'Under the Hood' tab for log details.")
                     else:

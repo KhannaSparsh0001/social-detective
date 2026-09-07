@@ -5,8 +5,8 @@ from app.config import DEFAULT_SIMILARITY_THRESHOLD
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        prog="facetrace",
-        description="FaceTrace — Face Search + Blockchain Verification",
+        prog="social-detective",
+        description="Social Detective — Face Search + Blockchain Verification",
     )
     subparsers = parser.add_subparsers(dest="command")
 
