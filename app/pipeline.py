@@ -171,8 +171,6 @@ def run_pipeline(
         if len(faces) > 1:
             _info("Multiple faces detected. Launching interactive target selection...")
             import cv2
-            import os
-            import sys
             from app.config import RESULTS_DIR
             img_bgr = cv2.imread(str(image_path_obj))
             if img_bgr is not None:
