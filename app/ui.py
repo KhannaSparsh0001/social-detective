@@ -124,12 +124,21 @@ if uploaded_main is not None:
                 x1, y1, x2, y2 = [int(v) for v in face.bbox]
                 face_data.append({"bbox": (x1, y1, x2, y2), "embedding": face.embedding})
                 
+                # Add 15% visual padding so the box doesn't overlap the face edges
+                img_h, img_w = img_bgr.shape[:2]
+                v_pad_w = int((x2 - x1) * 0.15)
+                v_pad_h = int((y2 - y1) * 0.15)
+                vx1 = max(0, x1 - v_pad_w)
+                vy1 = max(0, y1 - v_pad_h)
+                vx2 = min(img_w, x2 + v_pad_w)
+                vy2 = min(img_h, y2 + v_pad_h)
+                
                 # Draw neon cyan box (BGR: 255, 238, 0)
-                cv2.rectangle(img_bgr, (x1, y1), (x2, y2), (255, 238, 0), 2)
+                cv2.rectangle(img_bgr, (vx1, vy1), (vx2, vy2), (255, 238, 0), 2)
                 label = f"#{i + 1}"
                 (w, h), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 2)
-                cv2.rectangle(img_bgr, (x1, y1 - 20), (x1 + w, y1), (255, 238, 0), -1)
-                cv2.putText(img_bgr, label, (x1, y1 - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
+                cv2.rectangle(img_bgr, (vx1, vy1 - 20), (vx1 + w, vy1), (255, 238, 0), -1)
+                cv2.putText(img_bgr, label, (vx1, vy1 - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
                 
             annotated_img = img_bgr
         except Exception as e:
@@ -172,7 +181,7 @@ if uploaded_main is not None:
             selected_face = face_data[target_idx - 1]
             x1, y1, x2, y2 = selected_face['bbox']
             
-            margin = 0.60
+            margin = 0.70
             pad_w = int((x2 - x1) * margin)
             pad_h = int((y2 - y1) * margin)
             

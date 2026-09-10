@@ -32,6 +32,14 @@
 
 ---
 
+## 🚨 Development Note
+
+> **Branch Architecture & Advanced Features**
+> Major foundational updates including **Crowd Context**, **Retrospective Search**, and the **C3 (Collective Context Correlator)** were actively developed prior to September 8, 2026, 00:00 on the `feature-enhancement` branch. 
+> The `main` branch retains the core streamlined OSINT visual search architecture.
+
+---
+
 ## Table of Contents
 
 - [Overview & Key Highlights](#overview--key-highlights)
@@ -53,7 +61,8 @@
   - [Installation & Virtual Environment](#2-installation--virtual-environment)
   - [GPU Acceleration (NVIDIA CUDA)](#3-gpu-acceleration-nvidia-cuda-optional)
   - [Environment Configuration](#4-environment-configuration)
-  - [Execution Workflows (A through H)](#5-execution-workflows)
+  - [Web Dashboard (UI)](#5-web-dashboard-ui)
+  - [Execution Workflows (A through H)](#6-cli-execution-workflows)
 - [Independent Verification & Tamper Detection](#independent-verification--tamper-detection)
 - [Known Limitations & Engineering Boundaries](#known-limitations--engineering-boundaries)
 - [Demonstration & Audit Walkthrough](#demonstration--audit-walkthrough)
@@ -640,7 +649,19 @@ CONTRACT_ADDRESS=0xe25BfF359d31b3E2B3fF99692E6cE025f273BC21
 
 <br/>
 
-### 5. Execution Workflows
+### 5. Web Dashboard (UI)
+
+FaceTrace includes a premium "Cyber-Sleek" Web Dashboard powered by Streamlit for a fully interactive OSINT experience.
+
+To launch the Web UI:
+```bash
+streamlit run app/ui.py
+```
+This will open a local web server (usually at `http://localhost:8501`). From the UI, you can seamlessly configure search parameters, upload target photos, visually select faces, and trace their digital footprints with real-time log streaming.
+
+<br/>
+
+### 6. CLI Execution Workflows
 
 #### Option A: Autonomous Reverse Visual Search (Default)
 Queries Google Lens via SerpAPI. If quota is exhausted (HTTP 429), automatically activates the Zero-CAPTCHA Headless Lens Provider and Yandex fallback, extracts matches, notarizes on Sepolia, and verifies on-chain:
@@ -1011,6 +1032,8 @@ EOF
 > Users must adhere to applicable data protection regulations (e.g., GDPR, CCPA, BIPA) and terms of service. Do not use this framework for unlawful surveillance, harassment, or non-consensual tracking.
 
 ---
+
+
 
 ## License
 
